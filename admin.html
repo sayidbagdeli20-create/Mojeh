@@ -17,7 +17,7 @@
     .small-btn { font-size:12px; padding:6px 12px; border-radius:8px; border:1px solid var(--line); background:var(--cream); cursor:pointer; font-family:'Vazirmatn'; }
     .small-btn.danger { color:var(--danger); border-color: rgba(180,83,74,0.3); }
     .badge { font-size:11px; padding:3px 8px; border-radius:20px; }
-    .badge.paid { background:rgba(199,161,92,0.18); color:#8a6c2e; }
+    .badge.paid, .badge.confirmed { background:rgba(199,161,92,0.18); color:#8a6c2e; }
     .badge.pending { background:rgba(217,138,150,0.18); color:var(--blush-deep); }
     .badge.cancelled, .badge.failed { background:#eee; color:var(--muted); }
     .checkbox-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
@@ -62,6 +62,9 @@
         <div class="field"><label>نام خدمت</label><input id="new-service-name"></div>
         <div class="field"><label>قیمت (تومان)</label><input id="new-service-price" type="number"></div>
         <div class="field"><label>مدت زمان (دقیقه)</label><input id="new-service-duration" type="number"></div>
+        <label style="display:flex; align-items:center; gap:6px; font-size:13.5px; margin-bottom:14px;">
+          <input type="checkbox" id="new-service-payinperson"> پرداخت حضوری (نیازی به درگاه پرداخت نیست)
+        </label>
         <button class="btn btn-block" id="add-service-btn">افزودن خدمت</button>
       </div>
 

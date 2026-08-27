@@ -19,12 +19,17 @@
     const params = new URLSearchParams(window.location.search);
     const status = params.get('status');
     const ref = params.get('ref');
+    const inPerson = params.get('inperson') === '1';
     const iconBox = document.getElementById('icon-box');
     const title = document.getElementById('title');
     const desc = document.getElementById('desc');
     const refEl = document.getElementById('ref');
 
-    if (status === 'success') {
+    if (status === 'success' && inPerson) {
+      iconBox.innerHTML = '<div class="result-icon success">✓</div>';
+      title.textContent = 'نوبتت ثبت شد 🌿';
+      desc.textContent = 'هزینه رو موقع مراجعه، حضوری پرداخت کن. منتظرتیم!';
+    } else if (status === 'success') {
       iconBox.innerHTML = '<div class="result-icon success">✓</div>';
       title.textContent = 'نوبتت رزرو شد 🌿';
       desc.textContent = 'پرداخت با موفقیت انجام شد. منتظرتیم!';

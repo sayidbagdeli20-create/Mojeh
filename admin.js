@@ -22,7 +22,7 @@ async function api(action, params = {}) {
 }
 
 const DOW_LABELS = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه', 'شنبه'];
-const STATUS_FA = { paid: 'پرداخت‌شده', pending: 'در انتظار پرداخت', cancelled: 'لغوشده', failed: 'ناموفق' };
+const STATUS_FA = { paid: 'پرداخت‌شده', confirmed: 'تایید شده (حضوری)', pending: 'در انتظار پرداخت', cancelled: 'لغوشده', failed: 'ناموفق' };
 
 // ----------------------------- ورود -----------------------------
 $('#login-btn').addEventListener('click', async () => {
@@ -94,18 +94,22 @@ async function loadServices() {
   wrap.innerHTML = '';
   res.services.forEach((s) => {
     const active = String(s.active).toUpperCase() === 'TRUE';
+    const payInPerson = String(s.payInPerson).toUpperCase() === 'TRUE';
     const item = el('div', 'list-item');
     item.innerHTML = `
       <div class="row">
         <strong>${s.name}</strong>
         <span>${Number(s.price).toLocaleString('fa-IR')} تومان</span>
       </div>
-      <div style="font-size:13px; color:var(--muted); margin-top:4px;">${s.duration} دقیقه</div>
+      <div style="font-size:13px; color:var(--muted); margin-top:4px;">${s.duration} دقیقه${payInPerson ? ' · <span style="color:var(--blush-deep);">پرداخت حضوری</span>' : ''}</div>
       <div class="actions"></div>
       <div class="edit-form hidden" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--line);">
         <div class="field"><label>نام خدمت</label><input class="edit-name" value="${s.name}"></div>
         <div class="field"><label>قیمت (تومان)</label><input class="edit-price" type="number" value="${s.price}"></div>
         <div class="field"><label>مدت زمان (دقیقه)</label><input class="edit-duration" type="number" value="${s.duration}"></div>
+        <label style="display:flex; align-items:center; gap:6px; font-size:13.5px; margin-bottom:14px;">
+          <input type="checkbox" class="edit-payinperson" ${payInPerson ? 'checked' : ''}> پرداخت حضوری (نیازی به درگاه پرداخت نیست)
+        </label>
         <button class="btn btn-block save-edit-btn">ذخیره تغییرات</button>
       </div>
     `;
@@ -119,7 +123,7 @@ async function loadServices() {
     });
 
     toggleBtn.addEventListener('click', async () => {
-      await api('adminEditService', { id: s.id, name: s.name, price: s.price, duration: s.duration, active: active ? 'false' : 'true' });
+      await api('adminEditService', { id: s.id, name: s.name, price: s.price, duration: s.duration, active: active ? 'false' : 'true', payInPerson: payInPerson ? 'true' : 'false' });
       loadServices();
     });
 
@@ -127,11 +131,12 @@ async function loadServices() {
       const name = item.querySelector('.edit-name').value.trim();
       const price = item.querySelector('.edit-price').value;
       const duration = item.querySelector('.edit-duration').value;
+      const payInPersonChecked = item.querySelector('.edit-payinperson').checked;
       if (!name || !price || !duration) { toast('همه فیلدها را پر کن'); return; }
       const btn = item.querySelector('.save-edit-btn');
       btn.disabled = true;
       btn.textContent = 'در حال ذخیره...';
-      await api('adminEditService', { id: s.id, name, price, duration, active: active ? 'true' : 'false' });
+      await api('adminEditService', { id: s.id, name, price, duration, active: active ? 'true' : 'false', payInPerson: payInPersonChecked ? 'true' : 'false' });
       toast('قیمت و مشخصات خدمت به‌روزرسانی شد ✅');
       loadServices();
     });
@@ -146,11 +151,13 @@ $('#add-service-btn').addEventListener('click', async () => {
   const name = $('#new-service-name').value.trim();
   const price = $('#new-service-price').value;
   const duration = $('#new-service-duration').value;
+  const payInPerson = $('#new-service-payinperson').checked;
   if (!name || !price || !duration) { toast('همه فیلدها را پر کن'); return; }
-  await api('adminAddService', { name, price, duration });
+  await api('adminAddService', { name, price, duration, payInPerson: payInPerson ? 'true' : 'false' });
   $('#new-service-name').value = '';
   $('#new-service-price').value = '';
   $('#new-service-duration').value = '';
+  $('#new-service-payinperson').checked = false;
   toast('خدمت اضافه شد');
   loadServices();
 });

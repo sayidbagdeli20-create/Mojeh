@@ -50,11 +50,12 @@ async function loadServices() {
   state.services = data.services;
   wrap.innerHTML = '';
   data.services.forEach((s) => {
+    const isPayInPerson = String(s.payInPerson).toUpperCase() === 'TRUE';
     const card = el('div', 'service-card');
     card.innerHTML = `
       <div>
         <div class="name">${s.name}</div>
-        <div class="meta">${s.duration} دقیقه</div>
+        <div class="meta">${s.duration} دقیقه${isPayInPerson ? ' · پرداخت حضوری' : ''}</div>
       </div>
       <div class="price">${toman(s.price)}</div>
     `;
@@ -133,7 +134,10 @@ function updatePayBar() {
   const ready = state.selectedService && state.selectedDate && state.selectedTime;
   if (!ready) { bar.classList.add('hidden'); return; }
   bar.classList.remove('hidden');
+  const isPayInPerson = String(state.selectedService.payInPerson).toUpperCase() === 'TRUE';
   $('#total-amount').textContent = toman(state.selectedService.price);
+  document.querySelector('.pay-bar .total-label').textContent = isPayInPerson ? 'پرداخت حضوری' : 'مبلغ قابل پرداخت';
+  $('#submit-btn').textContent = isPayInPerson ? 'ثبت نوبت' : 'پرداخت و ثبت نوبت';
 }
 
 async function submitBooking() {
@@ -157,6 +161,11 @@ async function submitBooking() {
     toast(created.error || 'خطا در ثبت نوبت');
     btn.disabled = false;
     btn.textContent = 'پرداخت و ثبت نوبت';
+    return;
+  }
+
+  if (created.payInPerson) {
+    window.location.href = `result.html?status=success&inperson=1&bookingId=${created.bookingId}`;
     return;
   }
 
