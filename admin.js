@@ -155,43 +155,88 @@ $('#add-service-btn').addEventListener('click', async () => {
   loadServices();
 });
 
-// ----------------------------- تنظیمات -----------------------------
+// ----------------------------- بازه‌ی ساعت‌ها -----------------------------
 async function loadSettings() {
-  const daysWrap = $('#working-days');
-  daysWrap.innerHTML = '';
-  DOW_LABELS.forEach((label, i) => {
-    const l = el('label', '', `<input type="checkbox" value="${i}"> ${label}`);
-    daysWrap.appendChild(l);
-  });
-
   const res = await api('adminGetSettings');
   if (!res.ok) return;
   const s = res.settings;
-  const workingDays = (s.workingDays || '').split(',').map((x) => x.trim());
-  document.querySelectorAll('#working-days input').forEach((cb) => {
-    cb.checked = workingDays.includes(cb.value);
-  });
   $('#start-time').value = s.startTime || '10:00';
   $('#end-time').value = s.endTime || '19:00';
   $('#slot-interval').value = s.slotInterval || 60;
-  try {
-    const blocked = JSON.parse(s.blockedDates || '[]');
-    $('#blocked-dates').value = blocked.join('\n');
-  } catch (e) { $('#blocked-dates').value = ''; }
+  buildAdminDateScroller();
 }
 
-$('#save-settings-btn').addEventListener('click', async () => {
-  const checked = Array.from(document.querySelectorAll('#working-days input:checked')).map((cb) => cb.value);
-  const blockedLines = $('#blocked-dates').value.split('\n').map((l) => l.trim()).filter(Boolean);
-
+$('#save-range-btn').addEventListener('click', async () => {
   await api('adminSaveSettings', {
-    workingDays: checked.join(','),
     startTime: $('#start-time').value,
     endTime: $('#end-time').value,
     slotInterval: $('#slot-interval').value,
-    blockedDates: JSON.stringify(blockedLines),
   });
-  toast('تنظیمات ذخیره شد');
+  toast('بازه‌ی ساعت‌ها ذخیره شد');
+  if (adminSelectedDate) loadDaySlots(adminSelectedDate); // چیدمان گزینه‌ها رو به‌روز کن
+});
+
+// ----------------------------- تقویم روزها و ساعات قابل رزرو -----------------------------
+const DOW_SHORT = ['ی', 'د', 'س', 'چ', 'پ', 'ج', 'ش'];
+let adminSelectedDate = null;
+let adminOpenTimes = new Set();
+
+function buildAdminDateScroller() {
+  const wrap = $('#admin-date-scroller');
+  wrap.innerHTML = '';
+  const today = new Date();
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const iso = d.toISOString().slice(0, 10);
+    const chip = el('div', 'date-chip');
+    chip.innerHTML = `<div class="dow">${DOW_SHORT[d.getDay()]}</div><div class="dom">${d.getDate()}</div>`;
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#admin-date-scroller .date-chip').forEach((c) => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      loadDaySlots(iso);
+    });
+    wrap.appendChild(chip);
+  }
+}
+
+async function loadDaySlots(dateIso) {
+  adminSelectedDate = dateIso;
+  const grid = $('#admin-slot-grid');
+  grid.innerHTML = '<div class="empty-note">در حال بارگذاری...</div>';
+  const res = await api('adminGetDaySlots', { date: dateIso });
+  if (!res.ok) { grid.innerHTML = '<div class="empty-note">خطا در دریافت</div>'; return; }
+
+  adminOpenTimes = new Set(res.open);
+  grid.innerHTML = '';
+  if (res.candidates.length === 0) {
+    grid.innerHTML = '<div class="empty-note">اول بازه‌ی ساعت رو بالا تنظیم و ذخیره کن</div>';
+  } else {
+    res.candidates.forEach((t) => {
+      const slot = el('div', 'slot', t);
+      if (adminOpenTimes.has(t)) slot.classList.add('selected');
+      slot.addEventListener('click', () => {
+        if (adminOpenTimes.has(t)) { adminOpenTimes.delete(t); slot.classList.remove('selected'); }
+        else { adminOpenTimes.add(t); slot.classList.add('selected'); }
+      });
+      grid.appendChild(slot);
+    });
+  }
+
+  const saveBtn = $('#save-day-btn');
+  saveBtn.disabled = false;
+  saveBtn.textContent = 'ذخیره این روز';
+}
+
+$('#save-day-btn').addEventListener('click', async () => {
+  if (!adminSelectedDate) return;
+  const btn = $('#save-day-btn');
+  btn.disabled = true;
+  btn.textContent = 'در حال ذخیره...';
+  await api('adminSetDaySlots', { date: adminSelectedDate, times: Array.from(adminOpenTimes).join(',') });
+  toast('ساعت‌های این روز ذخیره شد ✅');
+  btn.disabled = false;
+  btn.textContent = 'ذخیره این روز';
 });
 
 // ----------------------------- init -----------------------------
