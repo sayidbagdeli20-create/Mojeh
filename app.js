@@ -73,6 +73,13 @@ function selectService(service, cardEl) {
   updatePayBar();
 }
 
+function toLocalDateStr_(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 // ----------------------------- تاریخ -----------------------------
 function buildDateScroller() {
   const wrap = $('#date-scroller');
@@ -81,7 +88,7 @@ function buildDateScroller() {
   for (let i = 0; i < 14; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
-    const iso = d.toISOString().slice(0, 10);
+    const iso = toLocalDateStr_(d);
     const chip = el('div', 'date-chip');
     chip.innerHTML = `<div class="dow">${PERSIAN_DOW_SHORT[d.getDay()]}</div><div class="dom">${d.getDate()}</div>`;
     chip.addEventListener('click', () => selectDate(iso, chip));

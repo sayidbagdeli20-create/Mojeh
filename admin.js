@@ -181,6 +181,13 @@ const DOW_SHORT = ['ی', 'د', 'س', 'چ', 'پ', 'ج', 'ش'];
 let adminSelectedDate = null;
 let adminOpenTimes = new Set();
 
+function toLocalDateStr_(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 function buildAdminDateScroller() {
   const wrap = $('#admin-date-scroller');
   wrap.innerHTML = '';
@@ -188,7 +195,7 @@ function buildAdminDateScroller() {
   for (let i = 0; i < 30; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
-    const iso = d.toISOString().slice(0, 10);
+    const iso = toLocalDateStr_(d);
     const chip = el('div', 'date-chip');
     chip.innerHTML = `<div class="dow">${DOW_SHORT[d.getDay()]}</div><div class="dom">${d.getDate()}</div>`;
     chip.addEventListener('click', () => {
