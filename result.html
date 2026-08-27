@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>نتیجه پرداخت</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="result-wrap">
+    <div id="icon-box"></div>
+    <h2 id="title" class="display"></h2>
+    <p id="desc" style="color:var(--muted); margin-top:10px; max-width:320px;"></p>
+    <p id="ref" style="color:var(--muted); font-size:13px; margin-top:6px;"></p>
+    <a href="index.html" class="btn btn-block" style="margin-top:26px; text-decoration:none; display:inline-block;">بازگشت به صفحه رزرو</a>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('status');
+    const ref = params.get('ref');
+    const iconBox = document.getElementById('icon-box');
+    const title = document.getElementById('title');
+    const desc = document.getElementById('desc');
+    const refEl = document.getElementById('ref');
+
+    if (status === 'success') {
+      iconBox.innerHTML = '<div class="result-icon success">✓</div>';
+      title.textContent = 'نوبتت رزرو شد 🌿';
+      desc.textContent = 'پرداخت با موفقیت انجام شد. منتظرتیم!';
+      if (ref) refEl.textContent = 'کد پیگیری: ' + ref;
+    } else if (status === 'cancelled') {
+      iconBox.innerHTML = '<div class="result-icon fail">×</div>';
+      title.textContent = 'پرداخت لغو شد';
+      desc.textContent = 'نوبتت ثبت نشد. می‌تونی دوباره تلاش کنی.';
+    } else {
+      iconBox.innerHTML = '<div class="result-icon fail">!</div>';
+      title.textContent = 'پرداخت ناموفق بود';
+      desc.textContent = 'مشکلی پیش اومد. اگه مبلغی کم شده، طی ۷۲ ساعت برمی‌گرده.';
+    }
+  </script>
+</body>
+</html>

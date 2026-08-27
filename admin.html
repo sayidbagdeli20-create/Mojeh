@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>پنل مدیریت</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .tab-bar { display:flex; gap:8px; margin-top:18px; }
+    .tab-btn { flex:1; padding:10px; border-radius:12px; border:2px solid var(--line); background:var(--paper); font-family:'Vazirmatn'; font-weight:600; font-size:13px; cursor:pointer; }
+    .tab-btn.active { background:var(--ink); color:var(--cream); border-color:var(--ink); }
+    .tab-panel { display:none; margin-top:20px; }
+    .tab-panel.active { display:block; }
+    .list-item { background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:12px 14px; margin-bottom:10px; }
+    .list-item .row { display:flex; justify-content:space-between; align-items:center; }
+    .list-item .actions { display:flex; gap:8px; margin-top:8px; }
+    .small-btn { font-size:12px; padding:6px 12px; border-radius:8px; border:1px solid var(--line); background:var(--cream); cursor:pointer; font-family:'Vazirmatn'; }
+    .small-btn.danger { color:var(--danger); border-color: rgba(180,83,74,0.3); }
+    .badge { font-size:11px; padding:3px 8px; border-radius:20px; }
+    .badge.paid { background:rgba(199,161,92,0.18); color:#8a6c2e; }
+    .badge.pending { background:rgba(217,138,150,0.18); color:var(--blush-deep); }
+    .badge.cancelled, .badge.failed { background:#eee; color:var(--muted); }
+    .checkbox-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+    .checkbox-row label { display:flex; align-items:center; gap:4px; background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:7px 10px; font-size:13px; cursor:pointer; }
+  </style>
+</head>
+<body>
+
+  <div class="hero" style="border-radius:0 0 24px 24px; padding:30px 18px;">
+    <div class="container">
+      <div class="eyebrow">پنل مدیریت</div>
+      <h1 style="font-size:22px;">مدیریت رزروها</h1>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- ورود -->
+    <section id="login-box">
+      <div class="section-title" style="margin-top:20px;">ورود</div>
+      <div class="field">
+        <label>رمز عبور پنل</label>
+        <input type="password" id="admin-password" placeholder="رمز عبور">
+      </div>
+      <button class="btn btn-block" id="login-btn">ورود به پنل</button>
+    </section>
+
+    <!-- محتوای پنل -->
+    <div id="panel" class="hidden">
+      <div class="tab-bar">
+        <button class="tab-btn active" data-tab="bookings">نوبت‌ها</button>
+        <button class="tab-btn" data-tab="services">خدمات</button>
+        <button class="tab-btn" data-tab="settings">ساعات کاری</button>
+      </div>
+
+      <div class="tab-panel active" id="tab-bookings">
+        <div id="bookings-list"></div>
+      </div>
+
+      <div class="tab-panel" id="tab-services">
+        <div id="services-list"></div>
+        <div class="section-title" style="margin-top:22px;">افزودن خدمت جدید</div>
+        <div class="field"><label>نام خدمت</label><input id="new-service-name"></div>
+        <div class="field"><label>قیمت (تومان)</label><input id="new-service-price" type="number"></div>
+        <div class="field"><label>مدت زمان (دقیقه)</label><input id="new-service-duration" type="number"></div>
+        <button class="btn btn-block" id="add-service-btn">افزودن خدمت</button>
+      </div>
+
+      <div class="tab-panel" id="tab-settings">
+        <div class="section-title">روزهای کاری</div>
+        <div class="checkbox-row" id="working-days"></div>
+        <div class="field"><label>ساعت شروع</label><input id="start-time" type="time"></div>
+        <div class="field"><label>ساعت پایان</label><input id="end-time" type="time"></div>
+        <div class="field"><label>فاصله هر نوبت (دقیقه)</label><input id="slot-interval" type="number"></div>
+        <div class="field">
+          <label>روزهای تعطیل خاص (هر خط یک تاریخ به فرم ۲۰۲۶-۰۹-۰۱)</label>
+          <textarea id="blocked-dates" rows="4" style="width:100%; border:2px solid var(--line); border-radius:12px; padding:12px; font-family:'Vazirmatn';"></textarea>
+        </div>
+        <button class="btn btn-block" id="save-settings-btn">ذخیره تنظیمات</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast hidden" id="toast"></div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

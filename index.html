@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>رزرو نوبت مژه</title>
+  <meta name="theme-color" content="#2A1B2E">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="hero">
+    <div class="container">
+      <svg class="lash-swoosh" viewBox="0 0 46 14" fill="none">
+        <path d="M2 12 Q 14 -4 44 6" stroke="#C7A15C" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <div class="eyebrow">استودیو زیبایی</div>
+      <h1>نوبتت رو با یه دست بگیر ✨</h1>
+      <p>خدمت رو انتخاب کن، ساعت خالی رو ببین، پرداخت کن — تمام.</p>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <section id="service-section">
+      <div class="section-title"><span class="num">۱</span> انتخاب خدمت</div>
+      <div id="services"></div>
+    </section>
+
+    <section id="date-section" class="hidden">
+      <div class="section-title"><span class="num">۲</span> انتخاب تاریخ</div>
+      <div class="date-scroller" id="date-scroller"></div>
+    </section>
+
+    <section id="time-section" class="hidden">
+      <div class="section-title"><span class="num">۳</span> انتخاب ساعت</div>
+      <div class="slot-grid" id="slot-grid"></div>
+    </section>
+
+    <section id="form-section" class="hidden">
+      <div class="section-title"><span class="num">۴</span> مشخصات تماس</div>
+      <div class="field">
+        <label>نام و نام‌خانوادگی</label>
+        <input type="text" id="customer-name" placeholder="مثلاً سارا احمدی">
+      </div>
+      <div class="field">
+        <label>شماره موبایل</label>
+        <input type="tel" id="customer-phone" placeholder="09xxxxxxxxx" inputmode="numeric">
+      </div>
+    </section>
+
+  </div>
+
+  <div class="pay-bar hidden" id="pay-bar">
+    <div>
+      <div class="total-label">مبلغ قابل پرداخت</div>
+      <div class="total-amount" id="total-amount">—</div>
+    </div>
+    <button class="btn" id="submit-btn">پرداخت و ثبت نوبت</button>
+  </div>
+
+  <div class="toast hidden" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
