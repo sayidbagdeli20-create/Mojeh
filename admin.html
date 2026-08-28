@@ -100,8 +100,16 @@
           </div>
         </div>
         <div class="field"><label>لینک صفحه‌ی اینستاگرام (اختیاری)</label><input id="brand-instagram-input" placeholder="https://instagram.com/yourpage" dir="ltr" style="text-align:left;"></div>
-        <div class="field"><label>لینک عکس لوگو/پروفایل (اختیاری)</label><input id="brand-logo-input" placeholder="https://..." dir="ltr" style="text-align:left;"></div>
-        <p style="font-size:12px; color:var(--muted); margin-top:-8px;">برای لینک لوگو: عکس پروفایل اینستاگرامت رو دانلود کن، توی گوگل درایو یا هر جای عمومی آپلود کن، لینک مستقیمش رو اینجا بذار.</p>
+        <div class="field">
+          <label>لوگو / عکس پروفایل</label>
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+            <img id="brand-logo-preview" class="hidden" style="width:56px; height:56px; border-radius:50%; object-fit:cover; border:2px solid var(--line);">
+            <label for="brand-logo-file" class="btn btn-ghost" style="cursor:pointer; font-size:13px; padding:10px 16px;">انتخاب عکس از گوشی</label>
+            <input type="file" id="brand-logo-file" accept="image/*" class="hidden">
+          </div>
+          <div id="brand-logo-status" style="font-size:12px; color:var(--muted);"></div>
+          <input type="hidden" id="brand-logo-input">
+        </div>
         <button class="btn btn-block" id="save-brand-btn">ذخیره برندینگ</button>
       </div>
     </div>

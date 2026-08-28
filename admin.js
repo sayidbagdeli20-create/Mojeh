@@ -263,6 +263,11 @@ async function loadBranding() {
   $('#brand-color-input').value = s.brandColor || '#D98A96';
   $('#brand-instagram-input').value = s.instagramUrl || '';
   $('#brand-logo-input').value = s.logoUrl || '';
+  if (s.logoUrl) {
+    const preview = $('#brand-logo-preview');
+    preview.src = s.logoUrl;
+    preview.classList.remove('hidden');
+  }
 }
 
 $('#save-brand-btn').addEventListener('click', async () => {
@@ -278,6 +283,64 @@ $('#save-brand-btn').addEventListener('click', async () => {
   toast('برندینگ ذخیره شد ✅ توی صفحه‌ی رزرو مشتری هم اعمال میشه');
   btn.disabled = false;
   btn.textContent = 'ذخیره برندینگ';
+});
+
+// عکس رو روی گوشی کوچیک و فشرده می‌کنه قبل از آپلود، تا سریع و سبک بمونه
+function resizeImageToDataUrl_(file, maxSize, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('خطا در خواندن فایل'));
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('فایل عکس معتبر نیست'));
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > height && width > maxSize) { height = Math.round(height * (maxSize / width)); width = maxSize; }
+        else if (height > maxSize) { width = Math.round(width * (maxSize / height)); height = maxSize; }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+$('#brand-logo-file').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const status = $('#brand-logo-status');
+  const preview = $('#brand-logo-preview');
+
+  try {
+    status.textContent = 'در حال آماده‌سازی عکس...';
+    const dataUrl = await resizeImageToDataUrl_(file, 500, 0.85);
+    preview.src = dataUrl;
+    preview.classList.remove('hidden');
+
+    status.textContent = 'در حال آپلود...';
+    const base64 = dataUrl.split(',')[1];
+
+    const res = await fetch(API_BASE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'adminUploadLogo', token, fileName: file.name, mimeType: 'image/jpeg', data: base64 }),
+    });
+    const result = await res.json();
+
+    if (result.ok) {
+      $('#brand-logo-input').value = result.url;
+      status.textContent = 'آپلود شد و ذخیره شد ✅';
+    } else {
+      status.textContent = 'خطا: ' + (result.error || 'آپلود ناموفق بود');
+    }
+  } catch (err) {
+    status.textContent = 'خطا در آپلود عکس';
+  }
 });
 
 // ----------------------------- init -----------------------------
