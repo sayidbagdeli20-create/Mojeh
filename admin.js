@@ -264,10 +264,18 @@ async function loadBranding() {
   $('#hero-subtitle-input').value = s.heroSubtitle || 'خدمت رو انتخاب کن، ساعت خالی رو ببین، پرداخت کن — تمام.';
   $('#brand-color-input').value = s.brandColor || '#D98A96';
   $('#brand-instagram-input').value = s.instagramUrl || '';
+
   $('#brand-logo-input').value = s.logoUrl || '';
   if (s.logoUrl) {
     const preview = $('#brand-logo-preview');
     preview.src = s.logoUrl;
+    preview.classList.remove('hidden');
+  }
+
+  $('#brand-bg-input').value = s.backgroundUrl || '';
+  if (s.backgroundUrl) {
+    const preview = $('#brand-bg-preview');
+    preview.src = s.backgroundUrl;
     preview.classList.remove('hidden');
   }
 }
@@ -283,6 +291,7 @@ $('#save-brand-btn').addEventListener('click', async () => {
     brandColor: $('#brand-color-input').value,
     instagramUrl: $('#brand-instagram-input').value.trim(),
     logoUrl: $('#brand-logo-input').value.trim(),
+    backgroundUrl: $('#brand-bg-input').value.trim(),
   });
   toast('برندینگ ذخیره شد ✅ توی صفحه‌ی رزرو مشتری هم اعمال میشه');
   btn.disabled = false;
@@ -313,16 +322,13 @@ function resizeImageToDataUrl_(file, maxSize, quality) {
   });
 }
 
-$('#brand-logo-file').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const status = $('#brand-logo-status');
-  const preview = $('#brand-logo-preview');
-
+// آپلود عکس جدید — target: 'logoUrl' یا 'backgroundUrl'، maxSize: حداکثر عرض/ارتفاع بعد از فشرده‌سازی
+async function uploadBrandImage_(file, target, maxSize, inputSel, previewSel, statusSel) {
+  const status = $(statusSel);
+  const preview = $(previewSel);
   try {
     status.textContent = 'در حال آماده‌سازی عکس...';
-    const dataUrl = await resizeImageToDataUrl_(file, 500, 0.85);
+    const dataUrl = await resizeImageToDataUrl_(file, maxSize, 0.85);
     preview.src = dataUrl;
     preview.classList.remove('hidden');
 
@@ -332,12 +338,12 @@ $('#brand-logo-file').addEventListener('change', async (e) => {
     const res = await fetch(API_BASE, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'adminUploadLogo', token, fileName: file.name, mimeType: 'image/jpeg', data: base64 }),
+      body: JSON.stringify({ action: 'adminUploadImage', token, target, fileName: file.name, mimeType: 'image/jpeg', data: base64 }),
     });
     const result = await res.json();
 
     if (result.ok) {
-      $('#brand-logo-input').value = result.url;
+      $(inputSel).value = result.url;
       status.textContent = 'آپلود شد و ذخیره شد ✅';
     } else {
       status.textContent = 'خطا: ' + (result.error || 'آپلود ناموفق بود');
@@ -345,6 +351,77 @@ $('#brand-logo-file').addEventListener('change', async (e) => {
   } catch (err) {
     status.textContent = 'خطا در آپلود عکس';
   }
+}
+
+$('#brand-logo-file').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) uploadBrandImage_(file, 'logoUrl', 500, '#brand-logo-input', '#brand-logo-preview', '#brand-logo-status');
+});
+
+$('#brand-bg-file').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) uploadBrandImage_(file, 'backgroundUrl', 1200, '#brand-bg-input', '#brand-bg-preview', '#brand-bg-status');
+});
+
+$('#brand-bg-remove-btn').addEventListener('click', async () => {
+  $('#brand-bg-input').value = '';
+  $('#brand-bg-preview').classList.add('hidden');
+  await api('adminSaveSettings', { backgroundUrl: '' });
+  toast('پس‌زمینه حذف شد');
+});
+
+// ----------------------------- گالری عکس‌های قبلی -----------------------------
+let imagesCache = null;
+
+async function fetchImages_() {
+  if (imagesCache) return imagesCache;
+  const res = await api('adminListImages');
+  imagesCache = res.ok ? res.images : [];
+  return imagesCache;
+}
+
+function setupGalleryButton_(btnSel, gallerySel, onPick) {
+  const btn = $(btnSel);
+  const gallery = $(gallerySel);
+  btn.addEventListener('click', async () => {
+    const isHidden = gallery.classList.contains('hidden');
+    if (!isHidden) { gallery.classList.add('hidden'); return; }
+
+    gallery.classList.remove('hidden');
+    gallery.innerHTML = '<div class="empty-note" style="grid-column: 1 / -1;">در حال بارگذاری...</div>';
+    const images = await fetchImages_();
+    if (images.length === 0) {
+      gallery.innerHTML = '<div class="empty-note" style="grid-column: 1 / -1;">هنوز عکسی آپلود نکردی</div>';
+      return;
+    }
+    gallery.innerHTML = '';
+    images.forEach((img) => {
+      const thumb = el('img');
+      thumb.src = img.url;
+      thumb.style.cssText = 'width:100%; aspect-ratio:1; object-fit:cover; border-radius:10px; border:2px solid var(--line); cursor:pointer;';
+      thumb.addEventListener('click', () => {
+        onPick(img.url);
+        gallery.classList.add('hidden');
+      });
+      gallery.appendChild(thumb);
+    });
+  });
+}
+
+setupGalleryButton_('#brand-logo-gallery-btn', '#brand-logo-gallery', (url) => {
+  $('#brand-logo-input').value = url;
+  const preview = $('#brand-logo-preview');
+  preview.src = url;
+  preview.classList.remove('hidden');
+  $('#brand-logo-status').textContent = 'انتخاب شد — پایین «ذخیره برندینگ» رو بزن';
+});
+
+setupGalleryButton_('#brand-bg-gallery-btn', '#brand-bg-gallery', (url) => {
+  $('#brand-bg-input').value = url;
+  const preview = $('#brand-bg-preview');
+  preview.src = url;
+  preview.classList.remove('hidden');
+  $('#brand-bg-status').textContent = 'انتخاب شد — پایین «ذخیره برندینگ» رو بزن';
 });
 
 // ----------------------------- init -----------------------------

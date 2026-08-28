@@ -109,9 +109,28 @@
             <label for="brand-logo-file" class="btn btn-ghost" style="cursor:pointer; font-size:13px; padding:10px 16px;">انتخاب عکس از گوشی</label>
             <input type="file" id="brand-logo-file" accept="image/*" class="hidden">
           </div>
-          <div id="brand-logo-status" style="font-size:12px; color:var(--muted);"></div>
+          <button type="button" class="btn btn-ghost" id="brand-logo-gallery-btn" style="font-size:12.5px; padding:8px 14px;">انتخاب از عکس‌های قبلی</button>
+          <div id="brand-logo-gallery" class="hidden" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;"></div>
+          <div id="brand-logo-status" style="font-size:12px; color:var(--muted); margin-top:8px;"></div>
           <input type="hidden" id="brand-logo-input">
         </div>
+
+        <div class="section-title" style="margin-top:26px;">تصویر پس‌زمینه‌ی کل صفحه‌ی رزرو (اختیاری)</div>
+        <div class="field">
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+            <img id="brand-bg-preview" class="hidden" style="width:70px; height:46px; border-radius:10px; object-fit:cover; border:2px solid var(--line);">
+            <label for="brand-bg-file" class="btn btn-ghost" style="cursor:pointer; font-size:13px; padding:10px 16px;">انتخاب عکس از گوشی</label>
+            <input type="file" id="brand-bg-file" accept="image/*" class="hidden">
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn btn-ghost" id="brand-bg-gallery-btn" style="font-size:12.5px; padding:8px 14px;">انتخاب از عکس‌های قبلی</button>
+            <button type="button" class="btn btn-ghost" id="brand-bg-remove-btn" style="font-size:12.5px; padding:8px 14px; color:var(--danger);">حذف پس‌زمینه</button>
+          </div>
+          <div id="brand-bg-gallery" class="hidden" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;"></div>
+          <div id="brand-bg-status" style="font-size:12px; color:var(--muted); margin-top:8px;"></div>
+          <input type="hidden" id="brand-bg-input">
+        </div>
+
         <button class="btn btn-block" id="save-brand-btn">ذخیره برندینگ</button>
       </div>
     </div>

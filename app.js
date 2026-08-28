@@ -204,6 +204,12 @@ async function loadBranding() {
       link.href = data.instagramUrl;
       link.classList.remove('hidden');
     }
+    if (data.backgroundUrl) {
+      document.body.style.backgroundImage = `linear-gradient(rgba(251,246,243,0.88), rgba(251,246,243,0.92)), url('${data.backgroundUrl}')`;
+      document.body.style.backgroundSize = 'cover';
+      document.body.style.backgroundPosition = 'top center';
+      document.body.style.backgroundAttachment = 'fixed';
+    }
   } catch (e) { /* برندینگ اختیاریه، اگه نشد مشکلی نیست */ }
 }
 
