@@ -40,6 +40,7 @@ async function showPanel() {
   loadBookings();
   loadServices();
   loadSettings();
+  loadBranding();
 }
 
 // ----------------------------- تب‌ها -----------------------------
@@ -251,6 +252,32 @@ $('#save-day-btn').addEventListener('click', async () => {
   toast('ساعت‌های این روز ذخیره شد ✅');
   btn.disabled = false;
   btn.textContent = 'ذخیره این روز';
+});
+
+// ----------------------------- برندینگ -----------------------------
+async function loadBranding() {
+  const res = await api('adminGetSettings');
+  if (!res.ok) return;
+  const s = res.settings;
+  $('#brand-name-input').value = s.brandName || 'استودیو زیبایی';
+  $('#brand-color-input').value = s.brandColor || '#D98A96';
+  $('#brand-instagram-input').value = s.instagramUrl || '';
+  $('#brand-logo-input').value = s.logoUrl || '';
+}
+
+$('#save-brand-btn').addEventListener('click', async () => {
+  const btn = $('#save-brand-btn');
+  btn.disabled = true;
+  btn.textContent = 'در حال ذخیره...';
+  await api('adminSaveSettings', {
+    brandName: $('#brand-name-input').value.trim() || 'استودیو زیبایی',
+    brandColor: $('#brand-color-input').value,
+    instagramUrl: $('#brand-instagram-input').value.trim(),
+    logoUrl: $('#brand-logo-input').value.trim(),
+  });
+  toast('برندینگ ذخیره شد ✅ توی صفحه‌ی رزرو مشتری هم اعمال میشه');
+  btn.disabled = false;
+  btn.textContent = 'ذخیره برندینگ';
 });
 
 // ----------------------------- init -----------------------------

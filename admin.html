@@ -53,6 +53,7 @@
         <button class="tab-btn active" data-tab="bookings">نوبت‌ها</button>
         <button class="tab-btn" data-tab="services">خدمات</button>
         <button class="tab-btn" data-tab="settings">ساعات کاری</button>
+        <button class="tab-btn" data-tab="brand">برندینگ</button>
       </div>
 
       <div class="tab-panel active" id="tab-bookings">
@@ -86,6 +87,22 @@
         <div class="date-scroller" id="admin-date-scroller"></div>
         <div class="slot-grid" id="admin-slot-grid" style="margin-top:14px;"></div>
         <button class="btn btn-block" id="save-day-btn" style="margin-top:14px;" disabled>یه روز رو از بالا انتخاب کن</button>
+      </div>
+
+      <div class="tab-panel" id="tab-brand">
+        <div class="section-title">اسم و ظاهر برند</div>
+        <div class="field"><label>اسم کسب‌وکار (بالای صفحه‌ی رزرو نشون داده میشه)</label><input id="brand-name-input" placeholder="مثلاً استودیو مژه سارا"></div>
+        <div class="field">
+          <label>رنگ اصلی برند</label>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <input id="brand-color-input" type="color" style="width:56px; height:44px; border:2px solid var(--line); border-radius:10px; padding:2px; background:var(--paper);">
+            <span style="font-size:12.5px; color:var(--muted);">همین رنگ روی دکمه‌ها و ساعت‌های انتخاب‌شده استفاده میشه</span>
+          </div>
+        </div>
+        <div class="field"><label>لینک صفحه‌ی اینستاگرام (اختیاری)</label><input id="brand-instagram-input" placeholder="https://instagram.com/yourpage" dir="ltr" style="text-align:left;"></div>
+        <div class="field"><label>لینک عکس لوگو/پروفایل (اختیاری)</label><input id="brand-logo-input" placeholder="https://..." dir="ltr" style="text-align:left;"></div>
+        <p style="font-size:12px; color:var(--muted); margin-top:-8px;">برای لینک لوگو: عکس پروفایل اینستاگرامت رو دانلود کن، توی گوگل درایو یا هر جای عمومی آپلود کن، لینک مستقیمش رو اینجا بذار.</p>
+        <button class="btn btn-block" id="save-brand-btn">ذخیره برندینگ</button>
       </div>
     </div>
   </div>

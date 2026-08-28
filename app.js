@@ -180,8 +180,34 @@ async function submitBooking() {
   window.location.href = payment.paymentUrl;
 }
 
+// ----------------------------- برندینگ -----------------------------
+async function loadBranding() {
+  try {
+    const data = await api('getBrandSettings');
+    if (!data.ok) return;
+
+    if (data.brandName) {
+      $('#brand-name').textContent = data.brandName;
+      document.title = data.brandName + ' — رزرو نوبت';
+    }
+    if (data.brandColor) {
+      document.documentElement.style.setProperty('--blush', data.brandColor);
+      document.documentElement.style.setProperty('--blush-deep', data.brandColor);
+    }
+    if (data.logoUrl) {
+      $('#brand-logo-wrap').innerHTML = `<img src="${data.logoUrl}" alt="لوگو" style="width:52px; height:52px; border-radius:50%; object-fit:cover; margin-bottom:12px; border:2px solid rgba(199,161,92,0.5);">`;
+    }
+    if (data.instagramUrl) {
+      const link = $('#instagram-link');
+      link.href = data.instagramUrl;
+      link.classList.remove('hidden');
+    }
+  } catch (e) { /* برندینگ اختیاریه، اگه نشد مشکلی نیست */ }
+}
+
 // ----------------------------- init -----------------------------
 window.addEventListener('DOMContentLoaded', () => {
+  loadBranding();
   loadServices();
   $('#submit-btn').addEventListener('click', submitBooking);
 
