@@ -255,3 +255,7 @@ $('#save-day-btn').addEventListener('click', async () => {
 
 // ----------------------------- init -----------------------------
 if (token) showPanel();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}

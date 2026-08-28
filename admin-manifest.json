@@ -1,0 +1,17 @@
+{
+  "name": "مدیریت نوبت مژه",
+  "short_name": "مدیریت نوبت",
+  "description": "پنل مدیریت نوبت‌ها، خدمات و ساعات کاری",
+  "start_url": "admin.html",
+  "scope": "admin.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FBF6F3",
+  "theme_color": "#2A1B2E",
+  "dir": "rtl",
+  "lang": "fa",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
