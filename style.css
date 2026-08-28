@@ -1,22 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&family=Noto+Naskh+Arabic:wght@500;700&display=swap');
 
 :root {
-  --ink: #2A1B2E;
+  --ink: #2A1B2E;        /* بنفش تیره - هدر و پس‌زمینه هیرو */
   --ink-soft: #3D2A42;
-  --cream: #FBF6F3;
+  --cream: #FBF6F3;      /* پس‌زمینه اصلی */
   --paper: #FFFFFF;
-  --blush: #D98A96;
+  --blush: #D98A96;      /* صورتی خاک‌گلی - رنگ اصلی برند */
   --blush-deep: #C46E7C;
-  --gold: #C7A15C;
-  --gold-soft: #E8D3A5;
+  --gold: #C7A15C;       /* طلایی گرم - تاکید/تایید */
   --charcoal: #2B2320;
   --muted: #8A7680;
   --line: #EADFE0;
   --danger: #B4534A;
-  --radius: 20px;
-  --shadow-soft: 0 6px 18px rgba(42, 27, 46, 0.08);
-  --shadow-elevated: 0 14px 34px rgba(42, 27, 46, 0.16);
-  --shadow-glow: 0 8px 24px rgba(217, 138, 150, 0.35);
+  --radius: 18px;
+  --shadow: 0 8px 24px rgba(42, 27, 46, 0.10);
 }
 
 * { box-sizing: border-box; }
@@ -24,6 +21,7 @@
 html, body {
   margin: 0;
   padding: 0;
+  background: var(--cream);
   color: var(--charcoal);
   font-family: 'Vazirmatn', sans-serif;
   direction: rtl;
@@ -31,11 +29,7 @@ html, body {
 }
 
 body {
-  padding-bottom: 100px;
-  background-color: var(--cream);
-  background-image:
-    radial-gradient(circle at 1px 1px, rgba(42,27,46,0.05) 1px, transparent 0);
-  background-size: 22px 22px;
+  padding-bottom: 96px; /* برای نوار پایینی */
 }
 
 h1, h2, h3, .display {
@@ -44,225 +38,209 @@ h1, h2, h3, .display {
   margin: 0;
 }
 
-.container { max-width: 480px; margin: 0 auto; padding: 0 18px; }
+.container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 18px;
+}
 
-/* ===================== هیرو با پس‌زمینه‌ی گرادیانی لایه‌دار ===================== */
+/* هیرو */
 .hero {
-  position: relative;
-  background: linear-gradient(160deg, var(--ink) 0%, var(--ink-soft) 55%, #472F4E 100%);
+  background: linear-gradient(160deg, var(--ink) 0%, var(--ink-soft) 100%);
   color: var(--cream);
-  padding: 40px 18px 58px;
+  padding: 38px 18px 46px;
+  border-radius: 0 0 32px 32px;
+  position: relative;
   overflow: hidden;
-  border-radius: 0 0 36px 36px;
-  isolation: isolate;
-}
-.hero::before, .hero::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(38px);
-  z-index: -1;
-}
-.hero::before {
-  width: 220px; height: 220px;
-  background: radial-gradient(circle, rgba(199,161,92,0.45), transparent 70%);
-  top: -70px; left: -60px;
 }
 .hero::after {
-  width: 260px; height: 260px;
-  background: radial-gradient(circle, rgba(217,138,150,0.35), transparent 70%);
-  bottom: -110px; right: -80px;
+  content: '';
+  position: absolute;
+  left: -40px; top: -40px;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(199,161,92,0.18), transparent 70%);
 }
-.hero-wave {
-  position: absolute; bottom: -1px; left: 0; width: 100%; height: 34px;
-  z-index: 1;
+.hero .eyebrow {
+  font-size: 13px;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
 }
-.hero-top-row {
-  display: flex; align-items: center; justify-content: space-between;
-  position: relative; z-index: 2;
+.hero h1 {
+  font-size: 28px;
+  line-height: 1.5;
 }
-.brand-mark {
-  display: flex; align-items: center; gap: 10px;
+.hero p {
+  color: rgba(251,246,243,0.75);
+  font-size: 14px;
+  margin-top: 8px;
 }
-.brand-mark img {
-  width: 44px; height: 44px; border-radius: 50%; object-fit: cover;
-  border: 2px solid rgba(199,161,92,0.55);
-  box-shadow: var(--shadow-soft);
-}
-.brand-mark .mark-icon {
-  width: 44px; height: 44px; border-radius: 50%;
-  background: linear-gradient(135deg, rgba(199,161,92,0.25), rgba(217,138,150,0.25));
-  display: flex; align-items: center; justify-content: center;
-  border: 1px solid rgba(251,246,243,0.25);
-}
-.eyebrow { font-size: 12.5px; color: var(--gold-soft); letter-spacing: 0.5px; font-weight: 600; }
-.hero h1 { font-size: 26px; line-height: 1.55; margin-top: 16px; position: relative; z-index: 2; }
-.hero p { color: rgba(251,246,243,0.7); font-size: 13.5px; margin-top: 8px; position: relative; z-index: 2; }
 
-.ig-pill {
-  display: inline-flex; align-items: center; gap: 6px; margin-top: 16px;
-  color: var(--cream); font-size: 12.5px; text-decoration: none;
-  border: 1px solid rgba(251,246,243,0.3);
-  background: rgba(251,246,243,0.08);
-  border-radius: 20px; padding: 7px 14px 7px 10px;
-  position: relative; z-index: 2;
-  backdrop-filter: blur(6px);
+/* لاگوی امضا: خط مژه‌ای منحنی */
+.lash-swoosh {
+  width: 46px;
+  height: 14px;
+  margin-bottom: 14px;
 }
-.ig-pill svg { width: 15px; height: 15px; }
 
-/* ===================== نشان‌های مرحله (به‌جای شماره‌های ساده) ===================== */
-section { margin-top: 30px; }
+section { margin-top: 26px; }
 .section-title {
-  font-size: 15px; font-weight: 700; color: var(--ink);
-  margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
-}
-.step-badge {
-  width: 32px; height: 32px; border-radius: 11px;
-  background: linear-gradient(135deg, var(--blush), var(--blush-deep));
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: var(--shadow-glow);
-  flex-shrink: 0;
-}
-.step-badge svg { width: 16px; height: 16px; stroke: white; }
-
-/* ===================== کارت خدمت ===================== */
-.service-card {
-  background: var(--paper);
-  border: 1.5px solid var(--line);
-  border-radius: var(--radius);
-  padding: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
   margin-bottom: 12px;
-  cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
   display: flex;
   align-items: center;
-  gap: 14px;
-  box-shadow: var(--shadow-soft);
+  gap: 8px;
 }
-.service-card:active { transform: scale(0.98); }
+.section-title .num {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--blush);
+  color: white;
+  font-size: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Vazirmatn';
+}
+
+/* کارت خدمت */
+.service-card {
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.service-card:active { transform: scale(0.99); }
 .service-card.selected {
   border-color: var(--blush);
-  box-shadow: var(--shadow-elevated);
+  background: linear-gradient(0deg, rgba(217,138,150,0.06), rgba(217,138,150,0.06));
 }
-.service-icon {
-  width: 46px; height: 46px; border-radius: 14px; flex-shrink: 0;
-  background: linear-gradient(135deg, rgba(217,138,150,0.16), rgba(199,161,92,0.16));
-  display: flex; align-items: center; justify-content: center;
-}
-.service-icon svg { width: 22px; height: 22px; stroke: var(--blush-deep); }
-.service-card .info { flex: 1; min-width: 0; }
 .service-card .name { font-weight: 600; font-size: 15px; }
-.service-card .meta { font-size: 12px; color: var(--muted); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
-.service-card .price { font-weight: 800; color: var(--ink); font-size: 13.5px; white-space: nowrap; }
+.service-card .meta { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+.service-card .price { font-weight: 700; color: var(--ink); font-size: 14px; white-space: nowrap; }
 
-/* ===================== انتخاب تاریخ ===================== */
-.date-scroller { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 8px; scrollbar-width: none; }
+/* انتخاب تاریخ */
+.date-scroller {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
 .date-scroller::-webkit-scrollbar { display: none; }
 .date-chip {
   flex: 0 0 auto;
   background: var(--paper);
-  border: 1.5px solid var(--line);
-  border-radius: 16px;
-  padding: 12px 15px;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  padding: 10px 14px;
   text-align: center;
-  min-width: 60px;
+  min-width: 62px;
   cursor: pointer;
-  box-shadow: var(--shadow-soft);
-  transition: all 0.15s;
 }
-.date-chip .dow { font-size: 11px; color: var(--muted); font-weight: 600; }
-.date-chip .dom { font-size: 17px; font-weight: 800; margin-top: 3px; }
-.date-chip.selected {
-  background: linear-gradient(135deg, var(--ink), var(--ink-soft));
-  border-color: var(--ink);
-  color: var(--cream);
-  box-shadow: var(--shadow-elevated);
-}
+.date-chip .dow { font-size: 11px; color: var(--muted); }
+.date-chip .dom { font-size: 16px; font-weight: 700; margin-top: 2px; }
+.date-chip.selected { background: var(--ink); border-color: var(--ink); color: var(--cream); }
 .date-chip.selected .dow { color: var(--gold); }
 
-/* ===================== اسلات‌های ساعت (پیل‌شکل مدرن) ===================== */
-.slot-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+/* اسلات‌های ساعت */
+.slot-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
 .slot {
   position: relative;
   background: var(--paper);
-  border: 1.5px solid var(--line);
-  border-radius: 999px;
-  padding: 12px 4px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  padding: 11px 4px;
   text-align: center;
-  font-weight: 700;
-  font-size: 13.5px;
+  font-weight: 600;
+  font-size: 14px;
   cursor: pointer;
-  box-shadow: var(--shadow-soft);
-  transition: all 0.15s;
 }
 .slot.selected {
-  background: linear-gradient(135deg, var(--blush), var(--blush-deep));
-  border-color: transparent;
-  color: white;
-  box-shadow: var(--shadow-glow);
+  border-color: var(--blush);
+  color: var(--blush-deep);
 }
 .slot.selected::after {
   content: '';
-  position: absolute; top: -5px; left: -5px;
-  width: 18px; height: 18px; border-radius: 50%;
-  background: var(--gold) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") no-repeat center/60%;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  position: absolute;
+  bottom: -6px; left: 50%;
+  transform: translateX(-50%);
+  width: 22px; height: 6px;
+  background: no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 6'%3E%3Cpath d='M1 5 Q 8 -2 21 4' stroke='%23C7A15C' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
 }
-.empty-note { color: var(--muted); font-size: 13.5px; padding: 18px 0; text-align: center; }
+.empty-note {
+  color: var(--muted);
+  font-size: 13.5px;
+  padding: 14px 0;
+  text-align: center;
+}
 
-/* ===================== فرم با آیکون ===================== */
+/* فرم */
 .field { margin-bottom: 14px; }
-.field label { display: block; font-size: 12.5px; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
-.field-icon-wrap { position: relative; }
-.field-icon-wrap svg {
-  position: absolute; top: 50%; right: 14px; transform: translateY(-50%);
-  width: 18px; height: 18px; stroke: var(--muted); pointer-events: none;
+.field label {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 6px;
 }
-.field-icon-wrap input { padding-right: 42px; }
-.field input, .field textarea {
+.field input {
   width: 100%;
-  border: 1.5px solid var(--line);
-  border-radius: 14px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
   padding: 13px 14px;
   font-family: 'Vazirmatn';
   font-size: 15px;
   background: var(--paper);
   color: var(--charcoal);
-  box-shadow: var(--shadow-soft);
 }
-.field input:focus, .field textarea:focus { outline: none; border-color: var(--blush); }
+.field input:focus {
+  outline: none;
+  border-color: var(--blush);
+}
 
-/* ===================== نوار پرداخت پایین (شیشه‌ای) ===================== */
+/* نوار پرداخت پایین */
 .pay-bar {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(14px);
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--paper);
   border-top: 1px solid var(--line);
   padding: 14px 18px;
-  display: flex; align-items: center; justify-content: space-between;
-  box-shadow: 0 -8px 28px rgba(42,27,46,0.10);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 -6px 20px rgba(42,27,46,0.08);
 }
-.pay-bar .total-label { font-size: 11.5px; color: var(--muted); font-weight: 600; }
+.pay-bar .total-label { font-size: 11.5px; color: var(--muted); }
 .pay-bar .total-amount { font-size: 17px; font-weight: 800; color: var(--ink); }
-
 .btn {
-  background: linear-gradient(135deg, var(--blush), var(--blush-deep));
+  background: var(--blush);
   color: white;
   border: none;
-  border-radius: 16px;
+  border-radius: 14px;
   padding: 14px 26px;
   font-family: 'Vazirmatn';
   font-weight: 700;
   font-size: 15px;
   cursor: pointer;
-  box-shadow: var(--shadow-glow);
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  transition: transform 0.1s, opacity 0.15s;
+  transition: opacity 0.15s;
 }
-.btn:active { transform: scale(0.98); }
-.btn svg { width: 18px; height: 18px; stroke: white; }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
-.btn-ghost { background: var(--paper); color: var(--ink); border: 1.5px solid var(--line); box-shadow: var(--shadow-soft); }
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 2px solid var(--line);
+}
 .btn-block { width: 100%; }
 
 .spinner {
@@ -272,27 +250,39 @@ section { margin-top: 30px; }
   border-radius: 50%;
   display: inline-block;
   animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+  margin-left: 6px;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .toast {
-  position: fixed; bottom: 100px; left: 18px; right: 18px;
-  background: var(--ink); color: var(--cream);
-  padding: 13px 16px; border-radius: 14px;
-  font-size: 13.5px; text-align: center;
-  box-shadow: var(--shadow-elevated); z-index: 50;
+  position: fixed;
+  bottom: 100px; left: 18px; right: 18px;
+  background: var(--ink);
+  color: var(--cream);
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  z-index: 50;
 }
 .hidden { display: none !important; }
 
-/* ===================== صفحه نتیجه‌ی پرداخت ===================== */
-.result-wrap { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; }
-.result-icon {
-  width: 84px; height: 84px; border-radius: 28px;
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 20px; box-shadow: var(--shadow-elevated);
+/* صفحه نتیجه‌ی پرداخت */
+.result-wrap {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 24px;
 }
-.result-icon svg { width: 40px; height: 40px; }
-.result-icon.success { background: linear-gradient(135deg, var(--gold-soft), var(--gold)); }
-.result-icon.success svg { stroke: white; }
-.result-icon.fail { background: linear-gradient(135deg, #E8B4AE, var(--danger)); }
-.result-icon.fail svg { stroke: white; }
+.result-icon {
+  width: 76px; height: 76px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px;
+  margin-bottom: 18px;
+}
+.result-icon.success { background: rgba(199,161,92,0.15); color: var(--gold); }
+.result-icon.fail { background: rgba(180,83,74,0.12); color: var(--danger); }

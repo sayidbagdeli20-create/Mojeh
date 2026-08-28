@@ -53,18 +53,9 @@ async function loadServices() {
     const isPayInPerson = String(s.payInPerson).toUpperCase() === 'TRUE';
     const card = el('div', 'service-card');
     card.innerHTML = `
-      <div class="service-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M2 12c3-4 6-6 10-6s7 2 10 6c-3 4-6 6-10 6s-7-2-10-6Z"/>
-          <circle cx="12" cy="12" r="2.4"/>
-        </svg>
-      </div>
-      <div class="info">
+      <div>
         <div class="name">${s.name}</div>
-        <div class="meta">
-          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-          ${s.duration} دقیقه${isPayInPerson ? ' · پرداخت حضوری' : ''}
-        </div>
+        <div class="meta">${s.duration} دقیقه${isPayInPerson ? ' · پرداخت حضوری' : ''}</div>
       </div>
       <div class="price">${toman(s.price)}</div>
     `;
@@ -138,12 +129,6 @@ function selectTime(t, slotEl) {
 }
 
 // ----------------------------- فرم و پرداخت -----------------------------
-const ARROW_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h14M12 5l7 7-7 7"/></svg>';
-
-function setSubmitLabel(text) {
-  $('#submit-btn').innerHTML = `${ARROW_ICON}${text}`;
-}
-
 function updatePayBar() {
   const bar = $('#pay-bar');
   const ready = state.selectedService && state.selectedDate && state.selectedTime;
@@ -152,7 +137,7 @@ function updatePayBar() {
   const isPayInPerson = String(state.selectedService.payInPerson).toUpperCase() === 'TRUE';
   $('#total-amount').textContent = toman(state.selectedService.price);
   document.querySelector('.pay-bar .total-label').textContent = isPayInPerson ? 'پرداخت حضوری' : 'مبلغ قابل پرداخت';
-  setSubmitLabel(isPayInPerson ? 'ثبت نوبت' : 'پرداخت و ثبت نوبت');
+  $('#submit-btn').textContent = isPayInPerson ? 'ثبت نوبت' : 'پرداخت و ثبت نوبت';
 }
 
 async function submitBooking() {
@@ -175,7 +160,7 @@ async function submitBooking() {
   if (!created.ok) {
     toast(created.error || 'خطا در ثبت نوبت');
     btn.disabled = false;
-    setSubmitLabel('پرداخت و ثبت نوبت');
+    btn.textContent = 'پرداخت و ثبت نوبت';
     return;
   }
 
@@ -188,7 +173,7 @@ async function submitBooking() {
   if (!payment.ok) {
     toast(payment.error || 'خطا در اتصال به درگاه پرداخت');
     btn.disabled = false;
-    setSubmitLabel('پرداخت و ثبت نوبت');
+    btn.textContent = 'پرداخت و ثبت نوبت';
     return;
   }
 
@@ -210,7 +195,7 @@ async function loadBranding() {
       document.documentElement.style.setProperty('--blush-deep', data.brandColor);
     }
     if (data.logoUrl) {
-      $('#brand-mark-icon').innerHTML = `<img src="${data.logoUrl}" alt="لوگو" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+      $('#brand-logo-wrap').innerHTML = `<img src="${data.logoUrl}" alt="لوگو" style="width:52px; height:52px; border-radius:50%; object-fit:cover; margin-bottom:12px; border:2px solid rgba(199,161,92,0.5);">`;
     }
     if (data.instagramUrl) {
       const link = $('#instagram-link');
