@@ -190,6 +190,8 @@ async function loadBranding() {
       $('#brand-name').textContent = data.brandName;
       document.title = data.brandName + ' — رزرو نوبت';
     }
+    if (data.heroTitle) $('#hero-title').textContent = data.heroTitle;
+    if (data.heroSubtitle) $('#hero-subtitle').textContent = data.heroSubtitle;
     if (data.brandColor) {
       document.documentElement.style.setProperty('--blush', data.brandColor);
       document.documentElement.style.setProperty('--blush-deep', data.brandColor);

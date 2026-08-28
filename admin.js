@@ -260,6 +260,8 @@ async function loadBranding() {
   if (!res.ok) return;
   const s = res.settings;
   $('#brand-name-input').value = s.brandName || 'استودیو زیبایی';
+  $('#hero-title-input').value = s.heroTitle || 'نوبتت رو با یه دست بگیر ✨';
+  $('#hero-subtitle-input').value = s.heroSubtitle || 'خدمت رو انتخاب کن، ساعت خالی رو ببین، پرداخت کن — تمام.';
   $('#brand-color-input').value = s.brandColor || '#D98A96';
   $('#brand-instagram-input').value = s.instagramUrl || '';
   $('#brand-logo-input').value = s.logoUrl || '';
@@ -276,6 +278,8 @@ $('#save-brand-btn').addEventListener('click', async () => {
   btn.textContent = 'در حال ذخیره...';
   await api('adminSaveSettings', {
     brandName: $('#brand-name-input').value.trim() || 'استودیو زیبایی',
+    heroTitle: $('#hero-title-input').value.trim() || 'نوبتت رو با یه دست بگیر ✨',
+    heroSubtitle: $('#hero-subtitle-input').value.trim() || 'خدمت رو انتخاب کن، ساعت خالی رو ببین، پرداخت کن — تمام.',
     brandColor: $('#brand-color-input').value,
     instagramUrl: $('#brand-instagram-input').value.trim(),
     logoUrl: $('#brand-logo-input').value.trim(),
