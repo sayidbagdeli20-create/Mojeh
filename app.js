@@ -54,7 +54,7 @@ async function loadServices() {
     const card = el('div', 'service-card');
     if (s.imageUrl) {
       const pos = s.imagePosition || 'center';
-      card.style.backgroundImage = `linear-gradient(rgba(255,255,255,0.82), rgba(255,255,255,0.82)), url('${s.imageUrl}')`;
+      card.style.backgroundImage = `linear-gradient(to left, rgba(255,255,255,0.88) 35%, rgba(255,255,255,0.35)), url('${s.imageUrl}')`;
       card.style.backgroundSize = 'cover';
       card.style.backgroundPosition = `center ${pos}`;
     }
