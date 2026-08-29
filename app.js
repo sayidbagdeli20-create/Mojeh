@@ -80,6 +80,35 @@ function selectService(service, cardEl) {
   updatePayBar();
 }
 
+// تبدیل تاریخ میلادی به شمسی (روی چند تاریخ مرجع شناخته‌شده تست و تایید شده)
+function toJalali_(gy, gm, gd) {
+  var g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+  var gy2 = (gm > 2) ? (gy + 1) : gy;
+  var days = 355666 + (365 * gy) + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100) + Math.floor((gy2 + 399) / 400) + gd + g_d_m[gm - 1];
+  var jy = -1595 + (33 * Math.floor(days / 12053));
+  days %= 12053;
+  jy += 4 * Math.floor(days / 1461);
+  days %= 1461;
+  if (days > 365) {
+    jy += Math.floor((days - 1) / 365);
+    days = (days - 1) % 365;
+  }
+  var jm, jd;
+  if (days < 186) {
+    jm = 1 + Math.floor(days / 31);
+    jd = 1 + (days % 31);
+  } else {
+    jm = 7 + Math.floor((days - 186) / 30);
+    jd = 1 + ((days - 186) % 30);
+  }
+  return { jy, jm, jd };
+}
+
+const PERSIAN_DIGITS = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+function toPersianDigits_(n) {
+  return String(n).replace(/[0-9]/g, (d) => PERSIAN_DIGITS[d]);
+}
+
 function toLocalDateStr_(d) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -96,8 +125,9 @@ function buildDateScroller() {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
     const iso = toLocalDateStr_(d);
+    const j = toJalali_(d.getFullYear(), d.getMonth() + 1, d.getDate());
     const chip = el('div', 'date-chip');
-    chip.innerHTML = `<div class="dow">${PERSIAN_DOW_SHORT[d.getDay()]}</div><div class="dom">${d.getDate()}</div>`;
+    chip.innerHTML = `<div class="dow">${PERSIAN_WEEKDAYS[d.getDay()]}</div><div class="dom">${toPersianDigits_(j.jd)}</div>`;
     chip.addEventListener('click', () => selectDate(iso, chip));
     wrap.appendChild(chip);
   }
@@ -109,6 +139,12 @@ async function selectDate(iso, chipEl) {
   state.selectedDate = iso;
   state.selectedTime = null;
   $('#time-section').classList.remove('hidden');
+
+  const [gy, gm, gd] = iso.split('-').map(Number);
+  const j = toJalali_(gy, gm, gd);
+  const fullDate = `${toPersianDigits_(j.jd)}-${toPersianDigits_(String(j.jm).padStart(2, '0'))}-${toPersianDigits_(j.jy)}`;
+  $('#selected-date-summary').textContent = fullDate;
+
   const grid = $('#slot-grid');
   grid.innerHTML = '<div class="empty-note">در حال بررسی ساعت‌های خالی...</div>';
   updatePayBar();
@@ -170,6 +206,18 @@ async function submitBooking() {
     return;
   }
 
+  saveReceipt_({
+    bookingId: created.bookingId,
+    serviceName: created.serviceName,
+    amount: created.amount,
+    date: state.selectedDate,
+    time: state.selectedTime,
+    customerName: name,
+    customerPhone: phone,
+    status: created.payInPerson ? 'confirmed' : 'pending',
+    createdAt: new Date().toISOString(),
+  });
+
   if (created.payInPerson) {
     window.location.href = `result.html?status=success&inperson=1&bookingId=${created.bookingId}`;
     return;
@@ -184,6 +232,18 @@ async function submitBooking() {
   }
 
   window.location.href = payment.paymentUrl;
+}
+
+// رسید رزرو رو توی حافظه‌ی همین گوشی ذخیره می‌کنه تا مشتری بعداً بتونه ببینتش
+function saveReceipt_(receipt) {
+  try {
+    localStorage.setItem('receipt_' + receipt.bookingId, JSON.stringify(receipt));
+    const list = JSON.parse(localStorage.getItem('receipts_list') || '[]');
+    if (!list.includes(receipt.bookingId)) {
+      list.unshift(receipt.bookingId);
+      localStorage.setItem('receipts_list', JSON.stringify(list.slice(0, 30)));
+    }
+  } catch (e) { /* اگه حافظه‌ی مرورگر پر بود، مشکلی برای ادامه‌ی رزرو پیش نمیاد */ }
 }
 
 // ----------------------------- برندینگ -----------------------------
