@@ -293,7 +293,7 @@ $('#save-range-btn').addEventListener('click', async () => {
     slotInterval: $('#slot-interval').value,
   });
   toast('بازه‌ی ساعت‌ها ذخیره شد');
-  if (adminSelectedDate) loadDaySlots(adminSelectedDate);
+  if (adminSelectedDate) loadDaySlots(adminSelectedDate); // چیدمان گزینه‌ها رو به‌روز کن
 });
 
 // ----------------------------- تقویم روزها و ساعات قابل رزرو -----------------------------
@@ -376,11 +376,19 @@ async function loadBranding() {
   $('#hero-subtitle-input').value = s.heroSubtitle || 'خدمت رو انتخاب کن، ساعت خالی رو ببین، پرداخت کن — تمام.';
   $('#brand-color-input').value = s.brandColor || '#D98A96';
   $('#brand-instagram-input').value = s.instagramUrl || '';
+  $('#brand-phone-input').value = s.phoneNumber || '';
 
   $('#brand-logo-input').value = s.logoUrl || '';
   if (s.logoUrl) {
     const preview = $('#brand-logo-preview');
     preview.src = s.logoUrl;
+    preview.classList.remove('hidden');
+  }
+
+  $('#brand-hero-input').value = s.heroImageUrl || '';
+  if (s.heroImageUrl) {
+    const preview = $('#brand-hero-preview');
+    preview.src = s.heroImageUrl;
     preview.classList.remove('hidden');
   }
 
@@ -402,7 +410,9 @@ $('#save-brand-btn').addEventListener('click', async () => {
     heroSubtitle: $('#hero-subtitle-input').value.trim() || 'خدمت رو انتخاب کن، ساعت خالی رو ببین، پرداخت کن — تمام.',
     brandColor: $('#brand-color-input').value,
     instagramUrl: $('#brand-instagram-input').value.trim(),
+    phoneNumber: $('#brand-phone-input').value.trim(),
     logoUrl: $('#brand-logo-input').value.trim(),
+    heroImageUrl: $('#brand-hero-input').value.trim(),
     backgroundUrl: $('#brand-bg-input').value.trim(),
   });
   toast('برندینگ ذخیره شد ✅ توی صفحه‌ی رزرو مشتری هم اعمال میشه');
@@ -470,6 +480,18 @@ $('#brand-logo-file').addEventListener('change', (e) => {
   if (file) uploadBrandImage_(file, 'logoUrl', 500, '#brand-logo-input', '#brand-logo-preview', '#brand-logo-status');
 });
 
+$('#brand-hero-file').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) uploadBrandImage_(file, 'heroImageUrl', 1000, '#brand-hero-input', '#brand-hero-preview', '#brand-hero-status');
+});
+
+$('#brand-hero-remove-btn').addEventListener('click', async () => {
+  $('#brand-hero-input').value = '';
+  $('#brand-hero-preview').classList.add('hidden');
+  await api('adminSaveSettings', { heroImageUrl: '' });
+  toast('عکس کادر بالایی حذف شد');
+});
+
 $('#brand-bg-file').addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (file) uploadBrandImage_(file, 'backgroundUrl', 1200, '#brand-bg-input', '#brand-bg-preview', '#brand-bg-status');
@@ -502,6 +524,14 @@ setupGalleryButton_('#brand-logo-gallery-btn', '#brand-logo-gallery', (url) => {
   preview.src = url;
   preview.classList.remove('hidden');
   $('#brand-logo-status').textContent = 'انتخاب شد — پایین «ذخیره برندینگ» رو بزن';
+});
+
+setupGalleryButton_('#brand-hero-gallery-btn', '#brand-hero-gallery', (url) => {
+  $('#brand-hero-input').value = url;
+  const preview = $('#brand-hero-preview');
+  preview.src = url;
+  preview.classList.remove('hidden');
+  $('#brand-hero-status').textContent = 'انتخاب شد — پایین «ذخیره برندینگ» رو بزن';
 });
 
 setupGalleryButton_('#brand-bg-gallery-btn', '#brand-bg-gallery', (url) => {
