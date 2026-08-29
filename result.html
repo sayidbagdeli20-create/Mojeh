@@ -12,14 +12,23 @@
     <h2 id="title" class="display"></h2>
     <p id="desc" style="color:var(--muted); margin-top:10px; max-width:320px;"></p>
     <p id="ref" style="color:var(--muted); font-size:13px; margin-top:6px;"></p>
-    <a href="index.html" class="btn btn-block" style="margin-top:26px; text-decoration:none; display:inline-block;">بازگشت به صفحه رزرو</a>
+
+    <div id="receipt-box" class="hidden" style="width:100%; max-width:320px; background:var(--paper); border:1.5px solid var(--line); border-radius:16px; padding:16px; margin-top:20px; text-align:right;">
+      <div style="font-size:13px; font-weight:700; color:var(--ink); margin-bottom:10px;">رسید رزرو</div>
+      <div id="receipt-rows" style="font-size:13px; color:var(--charcoal); display:flex; flex-direction:column; gap:6px;"></div>
+    </div>
+
+    <a href="index.html" class="btn btn-block" style="margin-top:20px; text-decoration:none; display:inline-block;">بازگشت به صفحه رزرو</a>
+    <a href="receipts.html" style="margin-top:14px; font-size:13px; color:var(--muted); text-decoration:underline;">دیدن همه‌ی رسیدهای من</a>
   </div>
 
+  <script src="jalali.js"></script>
   <script>
     const params = new URLSearchParams(window.location.search);
     const status = params.get('status');
     const ref = params.get('ref');
     const inPerson = params.get('inperson') === '1';
+    const bookingId = params.get('bookingId');
     const iconBox = document.getElementById('icon-box');
     const title = document.getElementById('title');
     const desc = document.getElementById('desc');
@@ -42,6 +51,33 @@
       iconBox.innerHTML = '<div class="result-icon fail">!</div>';
       title.textContent = 'پرداخت ناموفق بود';
       desc.textContent = 'مشکلی پیش اومد. اگه مبلغی کم شده، طی ۷۲ ساعت برمی‌گرده.';
+    }
+
+    // بروزرسانی و نمایش رسید ذخیره‌شده (اگه از همین گوشی رزرو شده باشه)
+    if (bookingId) {
+      try {
+        const raw = localStorage.getItem('receipt_' + bookingId);
+        if (raw) {
+          const r = JSON.parse(raw);
+          if (status === 'success' && !inPerson) { r.status = 'paid'; r.ref = ref || ''; }
+          else if (status === 'cancelled') r.status = 'cancelled';
+          else if (status === 'failed') r.status = 'failed';
+          localStorage.setItem('receipt_' + bookingId, JSON.stringify(r));
+
+          const STATUS_FA = { paid: 'پرداخت‌شده ✅', confirmed: 'تایید شده (پرداخت حضوری)', pending: 'در انتظار پرداخت', cancelled: 'لغوشده', failed: 'ناموفق' };
+          const rows = document.getElementById('receipt-rows');
+          rows.innerHTML = `
+            <div>خدمت: <strong>${r.serviceName}</strong></div>
+            <div>تاریخ: <strong>${jalaliReadable(r.date)}</strong></div>
+            <div>ساعت: <strong>${r.time}</strong></div>
+            <div>نام: <strong>${r.customerName}</strong></div>
+            <div>مبلغ: <strong>${Number(r.amount).toLocaleString('fa-IR')} تومان</strong></div>
+            <div>وضعیت: <strong>${STATUS_FA[r.status] || r.status}</strong></div>
+            <div style="color:var(--muted); font-size:11.5px; margin-top:4px;">شماره رزرو: ${r.bookingId}${r.ref ? ' — کد پیگیری: ' + r.ref : ''}</div>
+          `;
+          document.getElementById('receipt-box').classList.remove('hidden');
+        }
+      } catch (e) { /* اگه رسید پیدا نشد، فقط پیام بالا کافیه */ }
     }
   </script>
 </body>
