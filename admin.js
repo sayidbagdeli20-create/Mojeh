@@ -111,9 +111,32 @@ async function loadServices() {
         <label style="display:flex; align-items:center; gap:6px; font-size:13.5px; margin-bottom:14px;">
           <input type="checkbox" class="edit-payinperson" ${payInPerson ? 'checked' : ''}> پرداخت حضوری (نیازی به درگاه پرداخت نیست)
         </label>
+        <div class="field">
+          <label>عکس پس‌زمینه‌ی کارت</label>
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+            <img class="edit-image-preview ${s.imageUrl ? '' : 'hidden'}" src="${s.imageUrl || ''}" style="width:56px; height:56px; border-radius:12px; object-fit:cover; border:2px solid var(--line);">
+            <label class="btn btn-ghost" style="cursor:pointer; font-size:13px; padding:10px 16px;">انتخاب عکس از گوشی<input type="file" accept="image/*" class="hidden edit-image-file"></label>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn btn-ghost edit-image-gallery-btn" style="font-size:12.5px; padding:8px 14px;">انتخاب از عکس‌های قبلی</button>
+            <button type="button" class="btn btn-ghost edit-image-remove-btn" style="font-size:12.5px; padding:8px 14px; color:var(--danger);">حذف عکس</button>
+          </div>
+          <div class="edit-image-gallery hidden" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;"></div>
+          <div class="edit-image-status" style="font-size:12px; color:var(--muted); margin-top:8px;"></div>
+          <div class="field" style="margin-top:10px;">
+            <label>موقعیت نمایش عکس توی کادر</label>
+            <select class="edit-image-position" style="width:100%; border:2px solid var(--line); border-radius:12px; padding:12px; font-family:'Vazirmatn'; background:var(--paper);">
+              <option value="top" ${s.imagePosition === 'top' ? 'selected' : ''}>بالا</option>
+              <option value="center" ${(!s.imagePosition || s.imagePosition === 'center') ? 'selected' : ''}>وسط</option>
+              <option value="bottom" ${s.imagePosition === 'bottom' ? 'selected' : ''}>پایین</option>
+            </select>
+          </div>
+        </div>
         <button class="btn btn-block save-edit-btn">ذخیره تغییرات</button>
       </div>
     `;
+
+    let currentImageUrl = s.imageUrl || '';
 
     const editBtn = el('button', 'small-btn', 'ویرایش قیمت / نام');
     const toggleBtn = el('button', 'small-btn', active ? 'غیرفعال کردن' : 'فعال کردن');
@@ -124,8 +147,50 @@ async function loadServices() {
     });
 
     toggleBtn.addEventListener('click', async () => {
-      await api('adminEditService', { id: s.id, name: s.name, price: s.price, duration: s.duration, active: active ? 'false' : 'true', payInPerson: payInPerson ? 'true' : 'false' });
+      await api('adminEditService', { id: s.id, name: s.name, price: s.price, duration: s.duration, active: active ? 'false' : 'true', payInPerson: payInPerson ? 'true' : 'false', imageUrl: currentImageUrl, imagePosition: s.imagePosition || 'center' });
       loadServices();
+    });
+
+    const imagePreview = item.querySelector('.edit-image-preview');
+    const imageStatus = item.querySelector('.edit-image-status');
+
+    item.querySelector('.edit-image-file').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const dataUrl = await resizeImageToDataUrl_(file, 500, 0.85);
+      imagePreview.src = dataUrl;
+      imagePreview.classList.remove('hidden');
+      imageStatus.textContent = 'در حال آپلود...';
+      try {
+        const base64 = dataUrl.split(',')[1];
+        const res = await fetch(API_BASE, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'adminUploadImage', token, target: 'serviceImage', fileName: file.name, mimeType: 'image/jpeg', data: base64 }),
+        });
+        const result = await res.json();
+        if (result.ok) {
+          currentImageUrl = result.url;
+          imageStatus.textContent = 'آپلود شد — «ذخیره تغییرات» رو بزن';
+        } else {
+          imageStatus.textContent = 'خطا: ' + (result.error || 'آپلود ناموفق بود');
+        }
+      } catch (err) {
+        imageStatus.textContent = 'خطا در آپلود عکس';
+      }
+    });
+
+    item.querySelector('.edit-image-remove-btn').addEventListener('click', () => {
+      currentImageUrl = '';
+      imagePreview.classList.add('hidden');
+      imageStatus.textContent = 'عکس حذف شد — «ذخیره تغییرات» رو بزن';
+    });
+
+    setupGalleryButtonEl_(item.querySelector('.edit-image-gallery-btn'), item.querySelector('.edit-image-gallery'), (url) => {
+      currentImageUrl = url;
+      imagePreview.src = url;
+      imagePreview.classList.remove('hidden');
+      imageStatus.textContent = 'انتخاب شد — «ذخیره تغییرات» رو بزن';
     });
 
     item.querySelector('.save-edit-btn').addEventListener('click', async () => {
@@ -133,11 +198,12 @@ async function loadServices() {
       const price = item.querySelector('.edit-price').value;
       const duration = item.querySelector('.edit-duration').value;
       const payInPersonChecked = item.querySelector('.edit-payinperson').checked;
+      const imagePosition = item.querySelector('.edit-image-position').value;
       if (!name || !price || !duration) { toast('همه فیلدها را پر کن'); return; }
       const btn = item.querySelector('.save-edit-btn');
       btn.disabled = true;
       btn.textContent = 'در حال ذخیره...';
-      await api('adminEditService', { id: s.id, name, price, duration, active: active ? 'true' : 'false', payInPerson: payInPersonChecked ? 'true' : 'false' });
+      await api('adminEditService', { id: s.id, name, price, duration, active: active ? 'true' : 'false', payInPerson: payInPersonChecked ? 'true' : 'false', imageUrl: currentImageUrl, imagePosition });
       toast('قیمت و مشخصات خدمت به‌روزرسانی شد ✅');
       loadServices();
     });
@@ -148,19 +214,65 @@ async function loadServices() {
   });
 }
 
+// دکمه‌ی گالری با المنت مستقیم (نه آی‌دی) کار می‌کنه تا برای چندتا خدمت هم‌زمان قابل استفاده باشه
+function setupGalleryButtonEl_(btn, gallery, onPick) {
+  btn.addEventListener('click', async () => {
+    const isHidden = gallery.classList.contains('hidden');
+    if (!isHidden) { gallery.classList.add('hidden'); return; }
+
+    gallery.classList.remove('hidden');
+    gallery.innerHTML = '<div class="empty-note" style="grid-column: 1 / -1;">در حال بارگذاری...</div>';
+    const images = await fetchImages_();
+    if (images.length === 0) {
+      gallery.innerHTML = '<div class="empty-note" style="grid-column: 1 / -1;">هنوز عکسی آپلود نکردی</div>';
+      return;
+    }
+    gallery.innerHTML = '';
+    images.forEach((img) => {
+      const thumb = el('img');
+      thumb.src = img.url;
+      thumb.style.cssText = 'width:100%; aspect-ratio:1; object-fit:cover; border-radius:10px; border:2px solid var(--line); cursor:pointer;';
+      thumb.addEventListener('click', () => {
+        onPick(img.url);
+        gallery.classList.add('hidden');
+      });
+      gallery.appendChild(thumb);
+    });
+  });
+}
+
 $('#add-service-btn').addEventListener('click', async () => {
   const name = $('#new-service-name').value.trim();
   const price = $('#new-service-price').value;
   const duration = $('#new-service-duration').value;
   const payInPerson = $('#new-service-payinperson').checked;
+  const imageUrl = $('#new-service-image-url').value.trim();
+  const imagePosition = $('#new-service-image-position').value;
   if (!name || !price || !duration) { toast('همه فیلدها را پر کن'); return; }
-  await api('adminAddService', { name, price, duration, payInPerson: payInPerson ? 'true' : 'false' });
+  await api('adminAddService', { name, price, duration, payInPerson: payInPerson ? 'true' : 'false', imageUrl, imagePosition });
   $('#new-service-name').value = '';
   $('#new-service-price').value = '';
   $('#new-service-duration').value = '';
   $('#new-service-payinperson').checked = false;
+  $('#new-service-image-url').value = '';
+  $('#new-service-image-preview').classList.add('hidden');
+  $('#new-service-image-status').textContent = '';
+  $('#new-service-image-position').value = 'center';
   toast('خدمت اضافه شد');
   loadServices();
+});
+
+$('#new-service-image-file').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (file) uploadBrandImage_(file, 'serviceImage', 500, '#new-service-image-url', '#new-service-image-preview', '#new-service-image-status');
+});
+
+setupGalleryButton_('#new-service-gallery-btn', '#new-service-image-gallery', (url) => {
+  $('#new-service-image-url').value = url;
+  const preview = $('#new-service-image-preview');
+  preview.src = url;
+  preview.classList.remove('hidden');
+  $('#new-service-image-status').textContent = 'انتخاب شد';
 });
 
 // ----------------------------- بازه‌ی ساعت‌ها -----------------------------
@@ -181,7 +293,7 @@ $('#save-range-btn').addEventListener('click', async () => {
     slotInterval: $('#slot-interval').value,
   });
   toast('بازه‌ی ساعت‌ها ذخیره شد');
-  if (adminSelectedDate) loadDaySlots(adminSelectedDate); // چیدمان گزینه‌ها رو به‌روز کن
+  if (adminSelectedDate) loadDaySlots(adminSelectedDate);
 });
 
 // ----------------------------- تقویم روزها و ساعات قابل رزرو -----------------------------
@@ -381,31 +493,7 @@ async function fetchImages_() {
 }
 
 function setupGalleryButton_(btnSel, gallerySel, onPick) {
-  const btn = $(btnSel);
-  const gallery = $(gallerySel);
-  btn.addEventListener('click', async () => {
-    const isHidden = gallery.classList.contains('hidden');
-    if (!isHidden) { gallery.classList.add('hidden'); return; }
-
-    gallery.classList.remove('hidden');
-    gallery.innerHTML = '<div class="empty-note" style="grid-column: 1 / -1;">در حال بارگذاری...</div>';
-    const images = await fetchImages_();
-    if (images.length === 0) {
-      gallery.innerHTML = '<div class="empty-note" style="grid-column: 1 / -1;">هنوز عکسی آپلود نکردی</div>';
-      return;
-    }
-    gallery.innerHTML = '';
-    images.forEach((img) => {
-      const thumb = el('img');
-      thumb.src = img.url;
-      thumb.style.cssText = 'width:100%; aspect-ratio:1; object-fit:cover; border-radius:10px; border:2px solid var(--line); cursor:pointer;';
-      thumb.addEventListener('click', () => {
-        onPick(img.url);
-        gallery.classList.add('hidden');
-      });
-      gallery.appendChild(thumb);
-    });
-  });
+  setupGalleryButtonEl_($(btnSel), $(gallerySel), onPick);
 }
 
 setupGalleryButton_('#brand-logo-gallery-btn', '#brand-logo-gallery', (url) => {
