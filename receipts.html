@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>رسیدهای من</title>
+  <meta name="theme-color" content="#2A1B2E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="hero" style="border-radius:0 0 24px 24px; padding:30px 18px;">
+    <div class="container">
+      <div class="eyebrow">تاریخچه</div>
+      <h1 style="font-size:22px;">رسیدهای من</h1>
+    </div>
+  </div>
+
+  <div class="container" style="margin-top:22px;">
+    <div id="receipts-list"></div>
+    <a href="index.html" class="btn btn-block btn-ghost" style="margin-top:16px; text-decoration:none; display:inline-block; text-align:center;">بازگشت به صفحه رزرو</a>
+  </div>
+
+  <script src="jalali.js"></script>
+  <script>
+    const STATUS_FA = { paid: 'پرداخت‌شده ✅', confirmed: 'تایید شده (حضوری)', pending: 'در انتظار پرداخت', cancelled: 'لغوشده', failed: 'ناموفق' };
+
+    const wrap = document.getElementById('receipts-list');
+    let ids = [];
+    try { ids = JSON.parse(localStorage.getItem('receipts_list') || '[]'); } catch (e) {}
+
+    if (ids.length === 0) {
+      wrap.innerHTML = '<div class="empty-note">هنوز رسیدی روی این گوشی ذخیره نشده</div>';
+    } else {
+      ids.forEach((id) => {
+        let r;
+        try { r = JSON.parse(localStorage.getItem('receipt_' + id)); } catch (e) { return; }
+        if (!r) return;
+
+        const item = document.createElement('div');
+        item.className = 'list-item';
+        item.style.cssText = 'background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:10px;';
+        item.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong>${r.serviceName}</strong>
+            <span style="font-size:11px; padding:3px 8px; border-radius:20px; background:rgba(199,161,92,0.18); color:#8a6c2e;">${STATUS_FA[r.status] || r.status}</span>
+          </div>
+          <div style="font-size:13px; color:var(--muted); margin-top:6px;">
+            ${jalaliReadable(r.date)} — ساعت ${r.time}<br>
+            ${Number(r.amount).toLocaleString('fa-IR')} تومان
+          </div>
+        `;
+        wrap.appendChild(item);
+      });
+    }
+  </script>
+</body>
+</html>
