@@ -52,6 +52,12 @@ async function loadServices() {
   data.services.forEach((s) => {
     const isPayInPerson = String(s.payInPerson).toUpperCase() === 'TRUE';
     const card = el('div', 'service-card');
+    if (s.imageUrl) {
+      const pos = s.imagePosition || 'center';
+      card.style.backgroundImage = `linear-gradient(rgba(255,255,255,0.82), rgba(255,255,255,0.82)), url('${s.imageUrl}')`;
+      card.style.backgroundSize = 'cover';
+      card.style.backgroundPosition = `center ${pos}`;
+    }
     card.innerHTML = `
       <div>
         <div class="name">${s.name}</div>
