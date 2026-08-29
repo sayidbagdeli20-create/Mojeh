@@ -205,9 +205,20 @@ async function loadBranding() {
     if (data.logoUrl) {
       $('#brand-logo-wrap').innerHTML = `<img src="${data.logoUrl}" alt="لوگو" style="width:52px; height:52px; border-radius:50%; object-fit:cover; margin-bottom:12px; border:2px solid rgba(199,161,92,0.5);">`;
     }
+    if (data.heroImageUrl) {
+      const hero = $('#hero-box');
+      hero.style.backgroundImage = `linear-gradient(160deg, rgba(42,27,46,0.86) 0%, rgba(61,42,66,0.82) 55%, rgba(71,47,78,0.8) 100%), url('${data.heroImageUrl}')`;
+      hero.style.backgroundSize = 'cover';
+      hero.style.backgroundPosition = 'center';
+    }
     if (data.instagramUrl) {
       const link = $('#instagram-link');
       link.href = data.instagramUrl;
+      link.classList.remove('hidden');
+    }
+    if (data.phoneNumber) {
+      const link = $('#phone-link');
+      link.href = `tel:${data.phoneNumber}`;
       link.classList.remove('hidden');
     }
     if (data.backgroundUrl) {
