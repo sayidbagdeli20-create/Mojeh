@@ -69,6 +69,26 @@
         <label style="display:flex; align-items:center; gap:6px; font-size:13.5px; margin-bottom:14px;">
           <input type="checkbox" id="new-service-payinperson"> پرداخت حضوری (نیازی به درگاه پرداخت نیست)
         </label>
+        <div class="field">
+          <label>عکس پس‌زمینه‌ی کارت (اختیاری)</label>
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+            <img id="new-service-image-preview" class="hidden" style="width:56px; height:56px; border-radius:12px; object-fit:cover; border:2px solid var(--line);">
+            <label for="new-service-image-file" class="btn btn-ghost" style="cursor:pointer; font-size:13px; padding:10px 16px;">انتخاب عکس از گوشی</label>
+            <input type="file" id="new-service-image-file" accept="image/*" class="hidden">
+          </div>
+          <button type="button" class="btn btn-ghost" id="new-service-gallery-btn" style="font-size:12.5px; padding:8px 14px;">انتخاب از عکس‌های قبلی</button>
+          <div id="new-service-image-gallery" class="hidden" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;"></div>
+          <div id="new-service-image-status" style="font-size:12px; color:var(--muted); margin-top:8px;"></div>
+          <div class="field" style="margin-top:10px;">
+            <label>موقعیت نمایش عکس توی کادر</label>
+            <select id="new-service-image-position" style="width:100%; border:2px solid var(--line); border-radius:12px; padding:12px; font-family:'Vazirmatn'; background:var(--paper);">
+              <option value="top">بالا</option>
+              <option value="center" selected>وسط</option>
+              <option value="bottom">پایین</option>
+            </select>
+          </div>
+          <input type="hidden" id="new-service-image-url">
+        </div>
         <button class="btn btn-block" id="add-service-btn">افزودن خدمت</button>
       </div>
 
