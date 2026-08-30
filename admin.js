@@ -130,8 +130,16 @@ async function loadServices() {
         <div class="field"><label>اسم شخص انجام‌دهنده (اختیاری)</label><input class="edit-staffname" value="${s.staffName || ''}" placeholder="مثلاً سارا"></div>
         <div class="field">
           <label>لینک لوکیشن محل کار (اختیاری)</label>
-          <input class="edit-location" value="${s.locationUrl || ''}" placeholder="یا از دکمه‌ی پایین موقعیت فعلیت رو بگیر" dir="ltr" style="text-align:left;">
-          <button type="button" class="btn btn-ghost edit-location-gps-btn" style="font-size:12.5px; padding:8px 14px; margin-top:8px;">📍 استفاده از موقعیت فعلی من</button>
+          <input class="edit-location" value="${s.locationUrl || ''}" placeholder="یا از دکمه‌های پایین کمک بگیر" dir="ltr" style="text-align:left;">
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+            <button type="button" class="btn btn-ghost edit-location-gps-btn" style="font-size:12.5px; padding:8px 14px;">📍 استفاده از موقعیت فعلی من</button>
+            <button type="button" class="btn btn-ghost edit-location-maps-web-btn" style="font-size:12.5px; padding:8px 14px;">🗺️ باز کردن گوگل‌مپ وب</button>
+          </div>
+          <p style="font-size:11px; color:var(--muted); margin-top:8px; line-height:1.9;">
+            روش ۱ (ساده‌تر): وقتی توی همون محل هستی، «موقعیت فعلی من» رو بزن.<br>
+            روش ۲ (برای جای دیگه): «باز کردن گوگل‌مپ وب» رو بزن → لوکیشن رو سرچ کن یا رو نقشه پیدا کن → <b>آدرس بالای مرورگر</b> (نوار آدرس، نه دکمه‌ی Share) رو کپی کن → برگرد اینجا و توی همین فیلد بالا پیست کن.<br>
+            نکته: اگه با زدن دکمه، به‌جای مرورگر، خودِ اپ گوگل‌مپ باز شد (رفتار خودِ گوشیه)، از همون‌جا هم میشه: لوکیشن رو نگه‌دار بزن تا سنجاق بیفته، پایین صفحه روی مختصات (اعداد لوکیشن) بزن تا کپی بشه.
+          </p>
         </div>
         <div class="field">
           <label>عکس شخص انجام‌دهنده (اختیاری)</label>
@@ -192,6 +200,10 @@ async function loadServices() {
 
     item.querySelector('.edit-location-gps-btn').addEventListener('click', () => {
       useCurrentLocation_(item.querySelector('.edit-location'));
+    });
+
+    item.querySelector('.edit-location-maps-web-btn').addEventListener('click', () => {
+      window.open('https://maps.google.com', '_blank', 'noopener');
     });
 
     const staffImgPreview = item.querySelector('.edit-staffimg-preview');
@@ -763,6 +775,12 @@ function useCurrentLocation_(targetInput) {
 document.querySelectorAll('.location-gps-btn').forEach((btn) => {
   btn.addEventListener('click', () => {
     useCurrentLocation_($('#' + btn.dataset.target));
+  });
+});
+
+document.querySelectorAll('.location-maps-web-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    window.open('https://maps.google.com', '_blank', 'noopener');
   });
 });
 
