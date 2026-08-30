@@ -113,7 +113,8 @@ function renderServicesForCategory(categoryKey) {
     if (s.locationUrl) {
       card.querySelector('.location-pin-btn').addEventListener('click', (e) => {
         e.stopPropagation();
-        window.open(s.locationUrl, '_blank', 'noopener');
+        const url = /^https?:\/\//i.test(s.locationUrl) ? s.locationUrl : 'https://' + s.locationUrl;
+        window.open(url, '_blank', 'noopener');
       });
     }
     card.addEventListener('click', () => selectService(s, card));

@@ -130,7 +130,8 @@ async function loadServices() {
         <div class="field"><label>اسم شخص انجام‌دهنده (اختیاری)</label><input class="edit-staffname" value="${s.staffName || ''}" placeholder="مثلاً سارا"></div>
         <div class="field">
           <label>لینک لوکیشن محل کار (اختیاری)</label>
-          <input class="edit-location" value="${s.locationUrl || ''}" placeholder="لینک نقشه رو از گوگل‌مپ کپی و اینجا پیست کن" dir="ltr" style="text-align:left;">
+          <input class="edit-location" value="${s.locationUrl || ''}" placeholder="یا از دکمه‌ی پایین روی نقشه انتخاب کن" dir="ltr" style="text-align:left;">
+          <button type="button" class="btn btn-ghost edit-location-picker-btn" style="font-size:12.5px; padding:8px 14px; margin-top:8px;">📍 انتخاب لوکیشن روی نقشه</button>
         </div>
         <div class="field">
           <label>عکس شخص انجام‌دهنده (اختیاری)</label>
@@ -187,6 +188,10 @@ async function loadServices() {
     toggleBtn.addEventListener('click', async () => {
       await api('adminEditService', { id: s.id, name: s.name, price: s.price, duration: s.duration, active: active ? 'false' : 'true', payInPerson: payInPerson ? 'true' : 'false', imageUrl: currentImageUrl, imagePosition: s.imagePosition || 'center', category: s.category || '', staffName: s.staffName || '', staffImageUrl: currentStaffImageUrl, locationUrl: s.locationUrl || '' });
       loadServices();
+    });
+
+    item.querySelector('.edit-location-picker-btn').addEventListener('click', () => {
+      openLocationPicker_(item.querySelector('.edit-location'));
     });
 
     const staffImgPreview = item.querySelector('.edit-staffimg-preview');
@@ -279,7 +284,7 @@ async function loadServices() {
       const duration = item.querySelector('.edit-duration').value;
       const category = item.querySelector('.edit-category').value;
       const staffName = item.querySelector('.edit-staffname').value.trim();
-      const locationUrl = item.querySelector('.edit-location').value.trim();
+      const locationUrl = normalizeUrl_(item.querySelector('.edit-location').value.trim());
       const payInPersonChecked = item.querySelector('.edit-payinperson').checked;
       const imagePosition = item.querySelector('.edit-image-position').value;
       if (!name || !price || !duration) { toast('همه فیلدها را پر کن'); return; }
@@ -331,7 +336,7 @@ $('#add-service-btn').addEventListener('click', async () => {
   const category = $('#new-service-category').value;
   const staffName = $('#new-service-staffname').value.trim();
   const staffImageUrl = $('#new-service-staffimg-url').value.trim();
-  const locationUrl = $('#new-service-location').value.trim();
+  const locationUrl = normalizeUrl_($('#new-service-location').value.trim());
   const payInPerson = $('#new-service-payinperson').checked;
   const imageUrl = $('#new-service-image-url').value.trim();
   const imagePosition = $('#new-service-image-position').value;
@@ -724,6 +729,81 @@ $('#app-icon-file').addEventListener('change', (e) => {
     img.src = ev.target.result;
   };
   reader.readAsDataURL(file);
+});
+
+// ----------------------------- انتخاب لوکیشن روی نقشه -----------------------------
+// اگه لینک با http شروع نشه، مرورگر بجای گوگل‌مپ می‌ره سراغ خود سایت (باعث خطای ۴۰۴ میشه)
+function normalizeUrl_(u) {
+  if (!u) return u;
+  return /^https?:\/\//i.test(u) ? u : 'https://' + u;
+}
+
+let leafletMap_ = null;
+let leafletMarker_ = null;
+let locationPickerTargetInput_ = null;
+
+function setLocationMarker_(lat, lng) {
+  if (leafletMarker_) {
+    leafletMarker_.setLatLng([lat, lng]);
+  } else {
+    leafletMarker_ = L.marker([lat, lng]).addTo(leafletMap_);
+  }
+  leafletMarker_.latLngValue = [lat, lng];
+  $('#location-picker-confirm').disabled = false;
+  $('#location-picker-confirm').textContent = 'تایید این لوکیشن';
+}
+
+function openLocationPicker_(targetInput) {
+  locationPickerTargetInput_ = targetInput;
+  $('#location-picker-overlay').classList.remove('hidden');
+
+  if (!leafletMap_) {
+    leafletMap_ = L.map('location-picker-map').setView([35.6892, 51.3890], 12); // پیش‌فرض: تهران
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+      maxZoom: 19,
+    }).addTo(leafletMap_);
+    leafletMap_.on('click', (e) => setLocationMarker_(e.latlng.lat, e.latlng.lng));
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        leafletMap_.setView([pos.coords.latitude, pos.coords.longitude], 15);
+      }, () => {}, { timeout: 5000 });
+    }
+  } else {
+    setTimeout(() => leafletMap_.invalidateSize(), 100);
+  }
+
+  const existing = targetInput.value.trim();
+  const match = existing.match(/q=([\-0-9.]+),([\-0-9.]+)/);
+  if (match) {
+    const lat = parseFloat(match[1]);
+    const lng = parseFloat(match[2]);
+    setLocationMarker_(lat, lng);
+    leafletMap_.setView([lat, lng], 15);
+  } else {
+    $('#location-picker-confirm').disabled = true;
+    $('#location-picker-confirm').textContent = 'یه نقطه روی نقشه انتخاب کن';
+    if (leafletMarker_) { leafletMap_.removeLayer(leafletMarker_); leafletMarker_ = null; }
+  }
+}
+
+$('#location-picker-close').addEventListener('click', () => {
+  $('#location-picker-overlay').classList.add('hidden');
+});
+
+$('#location-picker-confirm').addEventListener('click', () => {
+  if (!leafletMarker_) return;
+  const [lat, lng] = leafletMarker_.latLngValue;
+  const url = `https://www.google.com/maps?q=${lat.toFixed(6)},${lng.toFixed(6)}`;
+  if (locationPickerTargetInput_) locationPickerTargetInput_.value = url;
+  $('#location-picker-overlay').classList.add('hidden');
+});
+
+document.querySelectorAll('.location-picker-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    openLocationPicker_($('#' + btn.dataset.target));
+  });
 });
 
 // ----------------------------- init -----------------------------
