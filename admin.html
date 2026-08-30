@@ -80,9 +80,16 @@
         <div class="field"><label>اسم شخص انجام‌دهنده (اختیاری)</label><input id="new-service-staffname" placeholder="مثلاً سارا"></div>
         <div class="field">
           <label>لینک لوکیشن محل کار (اختیاری)</label>
-          <input id="new-service-location" placeholder="یا از دکمه‌ی پایین موقعیت فعلیت رو بگیر" dir="ltr" style="text-align:left;">
-          <button type="button" class="btn btn-ghost location-gps-btn" data-target="new-service-location" style="font-size:12.5px; padding:8px 14px; margin-top:8px;">📍 استفاده از موقعیت فعلی من</button>
-          <p style="font-size:11px; color:var(--muted); margin-top:6px;">وقتی توی همون محل هستی این دکمه رو بزن. یا می‌تونی لینک لوکیشن رو از اپ گوگل‌مپ کپی و بالا پیست کنی.</p>
+          <input id="new-service-location" placeholder="یا از دکمه‌های پایین کمک بگیر" dir="ltr" style="text-align:left;">
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+            <button type="button" class="btn btn-ghost location-gps-btn" data-target="new-service-location" style="font-size:12.5px; padding:8px 14px;">📍 استفاده از موقعیت فعلی من</button>
+            <button type="button" class="btn btn-ghost location-maps-web-btn" style="font-size:12.5px; padding:8px 14px;">🗺️ باز کردن گوگل‌مپ وب</button>
+          </div>
+          <p style="font-size:11px; color:var(--muted); margin-top:8px; line-height:1.9;">
+            روش ۱ (ساده‌تر): وقتی توی همون محل هستی، «موقعیت فعلی من» رو بزن.<br>
+            روش ۲ (برای جای دیگه): «باز کردن گوگل‌مپ وب» رو بزن → لوکیشن رو سرچ کن یا رو نقشه پیدا کن → <b>آدرس بالای مرورگر</b> (نوار آدرس، نه دکمه‌ی Share) رو کپی کن → برگرد اینجا و توی همین فیلد بالا پیست کن.<br>
+            نکته: اگه با زدن دکمه، به‌جای مرورگر، خودِ اپ گوگل‌مپ باز شد (رفتار خودِ گوشیه)، از همون‌جا هم میشه: لوکیشن رو نگه‌دار بزن تا سنجاق بیفته، پایین صفحه روی مختصات (اعداد لوکیشن) بزن تا کپی بشه.
+          </p>
         </div>
         <div class="field">
           <label>عکس شخص انجام‌دهنده (اختیاری)</label>
