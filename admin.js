@@ -23,6 +23,14 @@ async function api(action, params = {}) {
 
 const DOW_LABELS = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه', 'شنبه'];
 const STATUS_FA = { paid: 'پرداخت‌شده', confirmed: 'تایید شده (حضوری)', pending: 'در انتظار پرداخت', cancelled: 'لغوشده', failed: 'ناموفق' };
+const CATEGORIES = [
+  { key: 'lash', label: 'مژه', emoji: '👁️' },
+  { key: 'nail', label: 'ناخن', emoji: '💅' },
+  { key: 'hair', label: 'مو', emoji: '💇‍♀️' },
+  { key: 'makeup', label: 'میکاپ', emoji: '💄' },
+  { key: 'eyebrow', label: 'ابرو', emoji: '🌸' },
+  { key: 'skin', label: 'پوست', emoji: '🧖‍♀️' },
+];
 
 // ----------------------------- ورود -----------------------------
 $('#login-btn').addEventListener('click', async () => {
@@ -96,18 +104,43 @@ async function loadServices() {
   res.services.forEach((s) => {
     const active = String(s.active).toUpperCase() === 'TRUE';
     const payInPerson = String(s.payInPerson).toUpperCase() === 'TRUE';
+    const catInfo = CATEGORIES.find((c) => c.key === s.category);
     const item = el('div', 'list-item');
     item.innerHTML = `
       <div class="row">
         <strong>${s.name}</strong>
         <span>${Number(s.price).toLocaleString('fa-IR')} تومان</span>
       </div>
-      <div style="font-size:13px; color:var(--muted); margin-top:4px;">${s.duration} دقیقه${payInPerson ? ' · <span style="color:var(--blush-deep);">پرداخت حضوری</span>' : ''}</div>
+      <div style="font-size:13px; color:var(--muted); margin-top:4px;">
+        ${s.duration} دقیقه${payInPerson ? ' · <span style="color:var(--blush-deep);">پرداخت حضوری</span>' : ''}
+        ${catInfo ? ` · ${catInfo.emoji} ${catInfo.label}` : ' · <span style="color:var(--danger);">بدون دسته‌بندی</span>'}
+        ${s.staffName ? ' · ' + s.staffName : ''}
+      </div>
       <div class="actions"></div>
       <div class="edit-form hidden" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--line);">
         <div class="field"><label>نام خدمت</label><input class="edit-name" value="${s.name}"></div>
         <div class="field"><label>قیمت (تومان)</label><input class="edit-price" type="number" value="${s.price}"></div>
         <div class="field"><label>مدت زمان (دقیقه)</label><input class="edit-duration" type="number" value="${s.duration}"></div>
+        <div class="field">
+          <label>دسته‌بندی</label>
+          <select class="edit-category" style="width:100%; border:2px solid var(--line); border-radius:12px; padding:12px; font-family:'Vazirmatn'; background:var(--paper);">
+            ${CATEGORIES.map((c) => `<option value="${c.key}" ${s.category === c.key ? 'selected' : ''}>${c.emoji} ${c.label}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field"><label>اسم شخص انجام‌دهنده (اختیاری)</label><input class="edit-staffname" value="${s.staffName || ''}" placeholder="مثلاً سارا"></div>
+        <div class="field">
+          <label>عکس شخص انجام‌دهنده (اختیاری)</label>
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+            <img class="edit-staffimg-preview ${s.staffImageUrl ? '' : 'hidden'}" src="${s.staffImageUrl || ''}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--line);">
+            <label class="btn btn-ghost" style="cursor:pointer; font-size:13px; padding:10px 16px;">انتخاب عکس از گوشی<input type="file" accept="image/*" class="hidden edit-staffimg-file"></label>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn btn-ghost edit-staffimg-gallery-btn" style="font-size:12.5px; padding:8px 14px;">انتخاب از عکس‌های قبلی</button>
+            <button type="button" class="btn btn-ghost edit-staffimg-remove-btn" style="font-size:12.5px; padding:8px 14px; color:var(--danger);">حذف عکس</button>
+          </div>
+          <div class="edit-staffimg-gallery hidden" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;"></div>
+          <div class="edit-staffimg-status" style="font-size:12px; color:var(--muted); margin-top:8px;"></div>
+        </div>
         <label style="display:flex; align-items:center; gap:6px; font-size:13.5px; margin-bottom:14px;">
           <input type="checkbox" class="edit-payinperson" ${payInPerson ? 'checked' : ''}> پرداخت حضوری (نیازی به درگاه پرداخت نیست)
         </label>
@@ -137,6 +170,7 @@ async function loadServices() {
     `;
 
     let currentImageUrl = s.imageUrl || '';
+    let currentStaffImageUrl = s.staffImageUrl || '';
 
     const editBtn = el('button', 'small-btn', 'ویرایش قیمت / نام');
     const toggleBtn = el('button', 'small-btn', active ? 'غیرفعال کردن' : 'فعال کردن');
@@ -147,8 +181,50 @@ async function loadServices() {
     });
 
     toggleBtn.addEventListener('click', async () => {
-      await api('adminEditService', { id: s.id, name: s.name, price: s.price, duration: s.duration, active: active ? 'false' : 'true', payInPerson: payInPerson ? 'true' : 'false', imageUrl: currentImageUrl, imagePosition: s.imagePosition || 'center' });
+      await api('adminEditService', { id: s.id, name: s.name, price: s.price, duration: s.duration, active: active ? 'false' : 'true', payInPerson: payInPerson ? 'true' : 'false', imageUrl: currentImageUrl, imagePosition: s.imagePosition || 'center', category: s.category || '', staffName: s.staffName || '', staffImageUrl: currentStaffImageUrl });
       loadServices();
+    });
+
+    const staffImgPreview = item.querySelector('.edit-staffimg-preview');
+    const staffImgStatus = item.querySelector('.edit-staffimg-status');
+
+    item.querySelector('.edit-staffimg-file').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const dataUrl = await resizeImageToDataUrl_(file, 400, 0.85);
+      staffImgPreview.src = dataUrl;
+      staffImgPreview.classList.remove('hidden');
+      staffImgStatus.textContent = 'در حال آپلود...';
+      try {
+        const base64 = dataUrl.split(',')[1];
+        const res = await fetch(API_BASE, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'adminUploadImage', token, target: 'staffImage', fileName: file.name, mimeType: 'image/jpeg', data: base64 }),
+        });
+        const result = await res.json();
+        if (result.ok) {
+          currentStaffImageUrl = result.url;
+          staffImgStatus.textContent = 'آپلود شد — «ذخیره تغییرات» رو بزن';
+        } else {
+          staffImgStatus.textContent = 'خطا: ' + (result.error || 'آپلود ناموفق بود');
+        }
+      } catch (err) {
+        staffImgStatus.textContent = 'خطا در آپلود عکس';
+      }
+    });
+
+    item.querySelector('.edit-staffimg-remove-btn').addEventListener('click', () => {
+      currentStaffImageUrl = '';
+      staffImgPreview.classList.add('hidden');
+      staffImgStatus.textContent = 'عکس حذف شد — «ذخیره تغییرات» رو بزن';
+    });
+
+    setupGalleryButtonEl_(item.querySelector('.edit-staffimg-gallery-btn'), item.querySelector('.edit-staffimg-gallery'), (url) => {
+      currentStaffImageUrl = url;
+      staffImgPreview.src = url;
+      staffImgPreview.classList.remove('hidden');
+      staffImgStatus.textContent = 'انتخاب شد — «ذخیره تغییرات» رو بزن';
     });
 
     const imagePreview = item.querySelector('.edit-image-preview');
@@ -197,13 +273,15 @@ async function loadServices() {
       const name = item.querySelector('.edit-name').value.trim();
       const price = item.querySelector('.edit-price').value;
       const duration = item.querySelector('.edit-duration').value;
+      const category = item.querySelector('.edit-category').value;
+      const staffName = item.querySelector('.edit-staffname').value.trim();
       const payInPersonChecked = item.querySelector('.edit-payinperson').checked;
       const imagePosition = item.querySelector('.edit-image-position').value;
       if (!name || !price || !duration) { toast('همه فیلدها را پر کن'); return; }
       const btn = item.querySelector('.save-edit-btn');
       btn.disabled = true;
       btn.textContent = 'در حال ذخیره...';
-      await api('adminEditService', { id: s.id, name, price, duration, active: active ? 'true' : 'false', payInPerson: payInPersonChecked ? 'true' : 'false', imageUrl: currentImageUrl, imagePosition });
+      await api('adminEditService', { id: s.id, name, price, duration, active: active ? 'true' : 'false', payInPerson: payInPersonChecked ? 'true' : 'false', imageUrl: currentImageUrl, imagePosition, category, staffName, staffImageUrl: currentStaffImageUrl });
       toast('قیمت و مشخصات خدمت به‌روزرسانی شد ✅');
       loadServices();
     });
@@ -245,14 +323,22 @@ $('#add-service-btn').addEventListener('click', async () => {
   const name = $('#new-service-name').value.trim();
   const price = $('#new-service-price').value;
   const duration = $('#new-service-duration').value;
+  const category = $('#new-service-category').value;
+  const staffName = $('#new-service-staffname').value.trim();
+  const staffImageUrl = $('#new-service-staffimg-url').value.trim();
   const payInPerson = $('#new-service-payinperson').checked;
   const imageUrl = $('#new-service-image-url').value.trim();
   const imagePosition = $('#new-service-image-position').value;
   if (!name || !price || !duration) { toast('همه فیلدها را پر کن'); return; }
-  await api('adminAddService', { name, price, duration, payInPerson: payInPerson ? 'true' : 'false', imageUrl, imagePosition });
+  await api('adminAddService', { name, price, duration, category, staffName, staffImageUrl, payInPerson: payInPerson ? 'true' : 'false', imageUrl, imagePosition });
   $('#new-service-name').value = '';
   $('#new-service-price').value = '';
   $('#new-service-duration').value = '';
+  $('#new-service-category').value = 'lash';
+  $('#new-service-staffname').value = '';
+  $('#new-service-staffimg-url').value = '';
+  $('#new-service-staffimg-preview').classList.add('hidden');
+  $('#new-service-staffimg-status').textContent = '';
   $('#new-service-payinperson').checked = false;
   $('#new-service-image-url').value = '';
   $('#new-service-image-preview').classList.add('hidden');
@@ -267,6 +353,11 @@ $('#new-service-image-file').addEventListener('change', async (e) => {
   if (file) uploadBrandImage_(file, 'serviceImage', 500, '#new-service-image-url', '#new-service-image-preview', '#new-service-image-status');
 });
 
+$('#new-service-staffimg-file').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (file) uploadBrandImage_(file, 'staffImage', 400, '#new-service-staffimg-url', '#new-service-staffimg-preview', '#new-service-staffimg-status');
+});
+
 setupGalleryButton_('#new-service-gallery-btn', '#new-service-image-gallery', (url) => {
   $('#new-service-image-url').value = url;
   const preview = $('#new-service-image-preview');
@@ -275,11 +366,20 @@ setupGalleryButton_('#new-service-gallery-btn', '#new-service-image-gallery', (u
   $('#new-service-image-status').textContent = 'انتخاب شد';
 });
 
+setupGalleryButton_('#new-service-staffimg-gallery-btn', '#new-service-staffimg-gallery', (url) => {
+  $('#new-service-staffimg-url').value = url;
+  const preview = $('#new-service-staffimg-preview');
+  preview.src = url;
+  preview.classList.remove('hidden');
+  $('#new-service-staffimg-status').textContent = 'انتخاب شد';
+});
+
 // ----------------------------- بازه‌ی ساعت‌ها -----------------------------
 async function loadSettings() {
   const res = await api('adminGetSettings');
   if (!res.ok) return;
   const s = res.settings;
+  adminCalendarType = s.calendarType || 'jalali';
   $('#start-time').value = s.startTime || '10:00';
   $('#end-time').value = s.endTime || '19:00';
   $('#slot-interval').value = s.slotInterval || 60;
@@ -297,15 +397,51 @@ $('#save-range-btn').addEventListener('click', async () => {
 });
 
 // ----------------------------- تقویم روزها و ساعات قابل رزرو -----------------------------
-const DOW_SHORT = ['ی', 'د', 'س', 'چ', 'پ', 'ج', 'ش'];
+const PERSIAN_WEEKDAYS = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه', 'شنبه'];
 let adminSelectedDate = null;
 let adminOpenTimes = new Set();
+let adminCalendarType = 'jalali';
+
+// تبدیل تاریخ میلادی به شمسی (روی چند تاریخ مرجع شناخته‌شده تست و تایید شده)
+function toJalali_(gy, gm, gd) {
+  var g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+  var gy2 = (gm > 2) ? (gy + 1) : gy;
+  var days = 355666 + (365 * gy) + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100) + Math.floor((gy2 + 399) / 400) + gd + g_d_m[gm - 1];
+  var jy = -1595 + (33 * Math.floor(days / 12053));
+  days %= 12053;
+  jy += 4 * Math.floor(days / 1461);
+  days %= 1461;
+  if (days > 365) {
+    jy += Math.floor((days - 1) / 365);
+    days = (days - 1) % 365;
+  }
+  var jm, jd;
+  if (days < 186) {
+    jm = 1 + Math.floor(days / 31);
+    jd = 1 + (days % 31);
+  } else {
+    jm = 7 + Math.floor((days - 186) / 30);
+    jd = 1 + ((days - 186) % 30);
+  }
+  return { jy, jm, jd };
+}
+
+const PERSIAN_DIGITS = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+function toPersianDigits_(n) {
+  return String(n).replace(/[0-9]/g, (d) => PERSIAN_DIGITS[d]);
+}
 
 function toLocalDateStr_(d) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   return `${y}-${m}-${day}`;
+}
+
+function adminDayNumberFor_(d) {
+  if (adminCalendarType === 'gregorian') return toPersianDigits_(d.getDate());
+  const j = toJalali_(d.getFullYear(), d.getMonth() + 1, d.getDate());
+  return toPersianDigits_(j.jd);
 }
 
 function buildAdminDateScroller() {
@@ -317,7 +453,7 @@ function buildAdminDateScroller() {
     d.setDate(today.getDate() + i);
     const iso = toLocalDateStr_(d);
     const chip = el('div', 'date-chip');
-    chip.innerHTML = `<div class="dow">${DOW_SHORT[d.getDay()]}</div><div class="dom">${d.getDate()}</div>`;
+    chip.innerHTML = `<div class="dow">${PERSIAN_WEEKDAYS[d.getDay()]}</div><div class="dom">${adminDayNumberFor_(d)}</div>`;
     chip.addEventListener('click', () => {
       document.querySelectorAll('#admin-date-scroller .date-chip').forEach((c) => c.classList.remove('selected'));
       chip.classList.add('selected');
@@ -371,6 +507,8 @@ async function loadBranding() {
   const res = await api('adminGetSettings');
   if (!res.ok) return;
   const s = res.settings;
+  $('#calendar-type-input').value = s.calendarType || 'jalali';
+  adminCalendarType = s.calendarType || 'jalali';
   $('#brand-name-input').value = s.brandName || 'استودیو زیبایی';
   $('#hero-title-input').value = s.heroTitle || 'نوبتت رو با یه دست بگیر ✨';
   $('#hero-subtitle-input').value = s.heroSubtitle || 'خدمت رو انتخاب کن، ساعت خالی رو ببین، پرداخت کن — تمام.';
@@ -413,8 +551,11 @@ $('#save-brand-btn').addEventListener('click', async () => {
     phoneNumber: $('#brand-phone-input').value.trim(),
     logoUrl: $('#brand-logo-input').value.trim(),
     heroImageUrl: $('#brand-hero-input').value.trim(),
+    calendarType: $('#calendar-type-input').value,
     backgroundUrl: $('#brand-bg-input').value.trim(),
   });
+  adminCalendarType = $('#calendar-type-input').value;
+  if ($('#admin-date-scroller').children.length > 0) buildAdminDateScroller();
   toast('برندینگ ذخیره شد ✅ توی صفحه‌ی رزرو مشتری هم اعمال میشه');
   btn.disabled = false;
   btn.textContent = 'ذخیره برندینگ';

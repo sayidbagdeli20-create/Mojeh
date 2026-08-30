@@ -104,6 +104,31 @@ section { margin-top: 26px; }
   font-family: 'Vazirmatn';
 }
 
+/* کارت دسته‌بندی */
+.category-card {
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s;
+}
+.category-card:active { transform: scale(0.97); }
+.category-card .emoji { font-size: 24px; }
+.category-card .label { font-size: 12px; font-weight: 600; margin-top: 6px; color: var(--charcoal); }
+
+/* آواتار شخص انجام‌دهنده روی کارت خدمت */
+.staff-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--line);
+  vertical-align: middle;
+  margin-left: 6px;
+}
+
 /* کارت خدمت */
 .service-card {
   background: var(--paper);
@@ -140,12 +165,12 @@ section { margin-top: 26px; }
   background: var(--paper);
   border: 2px solid var(--line);
   border-radius: 14px;
-  padding: 10px 14px;
+  padding: 10px 12px;
   text-align: center;
-  min-width: 62px;
+  min-width: 78px;
   cursor: pointer;
 }
-.date-chip .dow { font-size: 11px; color: var(--muted); }
+.date-chip .dow { font-size: 10.5px; color: var(--muted); white-space: nowrap; }
 .date-chip .dom { font-size: 16px; font-weight: 700; margin-top: 2px; }
 .date-chip.selected { background: var(--ink); border-color: var(--ink); color: var(--cream); }
 .date-chip.selected .dow { color: var(--gold); }

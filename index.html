@@ -34,7 +34,13 @@
   <div class="container">
 
     <section id="service-section">
-      <div class="section-title"><span class="num">۱</span> انتخاب خدمت</div>
+      <div class="section-title" id="category-menu-toggle" style="cursor:pointer; justify-content:space-between;">
+        <span><span class="num">۱</span> <span id="category-menu-label">منوی خدمات زیبایی</span></span>
+        <span id="category-menu-chevron" style="font-size:12px; color:var(--muted);">▾</span>
+      </div>
+
+      <div class="slot-grid hidden" id="category-grid" style="grid-template-columns:repeat(3, 1fr);"></div>
+
       <div id="services"></div>
     </section>
 

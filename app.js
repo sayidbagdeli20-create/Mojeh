@@ -40,16 +40,52 @@ async function api(action, params = {}) {
   return res.json();
 }
 
+const CATEGORIES = [
+  { key: 'lash', label: 'مژه', emoji: '👁️' },
+  { key: 'nail', label: 'ناخن', emoji: '💅' },
+  { key: 'hair', label: 'مو', emoji: '💇‍♀️' },
+  { key: 'makeup', label: 'میکاپ', emoji: '💄' },
+  { key: 'eyebrow', label: 'ابرو', emoji: '🌸' },
+  { key: 'skin', label: 'پوست', emoji: '🧖‍♀️' },
+];
+
 // ----------------------------- خدمات -----------------------------
 async function loadServices() {
-  const wrap = $('#services');
-  wrap.innerHTML = '<div class="empty-note">در حال بارگذاری...</div>';
   const data = await api('getServices');
-  if (!data.ok) { wrap.innerHTML = '<div class="empty-note">خطا در دریافت خدمات</div>'; return; }
-
+  if (!data.ok) { toast('خطا در دریافت خدمات'); return; }
   state.services = data.services;
+  renderCategoryGrid();
+}
+
+function renderCategoryGrid() {
+  const grid = $('#category-grid');
+  grid.innerHTML = '';
+  CATEGORIES.forEach((cat) => {
+    const card = el('div', 'category-card', `<div class="emoji">${cat.emoji}</div><div class="label">${cat.label}</div>`);
+    card.addEventListener('click', () => selectCategory(cat));
+    grid.appendChild(card);
+  });
+}
+
+function selectCategory(cat) {
+  $('#category-grid').classList.add('hidden');
+  $('#category-menu-label').textContent = `${cat.emoji} ${cat.label} (تغییر دسته)`;
+  renderServicesForCategory(cat.key);
+}
+
+$('#category-menu-toggle').addEventListener('click', () => {
+  $('#category-grid').classList.toggle('hidden');
+});
+
+function renderServicesForCategory(categoryKey) {
+  const wrap = $('#services');
+  const filtered = state.services.filter((s) => s.category === categoryKey);
   wrap.innerHTML = '';
-  data.services.forEach((s) => {
+  if (filtered.length === 0) {
+    wrap.innerHTML = '<div class="empty-note">فعلاً خدمتی توی این دسته تعریف نشده</div>';
+    return;
+  }
+  filtered.forEach((s) => {
     const isPayInPerson = String(s.payInPerson).toUpperCase() === 'TRUE';
     const card = el('div', 'service-card');
     if (s.imageUrl) {
@@ -58,10 +94,12 @@ async function loadServices() {
       card.style.backgroundSize = 'cover';
       card.style.backgroundPosition = `center ${pos}`;
     }
+    const staffAvatar = s.staffImageUrl ? `<img class="staff-avatar" src="${s.staffImageUrl}">` : '';
+    const staffLine = s.staffName ? ` · ${s.staffName}` : '';
     card.innerHTML = `
       <div>
         <div class="name">${s.name}</div>
-        <div class="meta">${s.duration} دقیقه${isPayInPerson ? ' · پرداخت حضوری' : ''}</div>
+        <div class="meta">${staffAvatar}${s.duration} دقیقه${isPayInPerson ? ' · پرداخت حضوری' : ''}${staffLine}</div>
       </div>
       <div class="price">${toman(s.price)}</div>
     `;
@@ -116,6 +154,26 @@ function toLocalDateStr_(d) {
   return `${y}-${m}-${day}`;
 }
 
+// نوع تقویمی که از برندینگ میاد: 'jalali' یا 'gregorian'
+let calendarType = 'jalali';
+
+// برای یه شیء Date، عدد روزی که باید روی چیپ نشون داده بشه رو برمی‌گردونه
+function dayNumberFor_(d) {
+  if (calendarType === 'gregorian') return toPersianDigits_(d.getDate());
+  const j = toJalali_(d.getFullYear(), d.getMonth() + 1, d.getDate());
+  return toPersianDigits_(j.jd);
+}
+
+// فرمت کامل تاریخ (مثلاً ۱۴۰۵-۰۸-۲۰ یا ۲۰۲۶-۱۱-۱۱ بسته به تنظیم تقویم)
+function fullDateFor_(iso) {
+  const [gy, gm, gd] = iso.split('-').map(Number);
+  if (calendarType === 'gregorian') {
+    return `${toPersianDigits_(gy)}-${toPersianDigits_(String(gm).padStart(2, '0'))}-${toPersianDigits_(String(gd).padStart(2, '0'))}`;
+  }
+  const j = toJalali_(gy, gm, gd);
+  return `${toPersianDigits_(j.jy)}-${toPersianDigits_(String(j.jm).padStart(2, '0'))}-${toPersianDigits_(String(j.jd).padStart(2, '0'))}`;
+}
+
 // ----------------------------- تاریخ -----------------------------
 function buildDateScroller() {
   const wrap = $('#date-scroller');
@@ -125,9 +183,8 @@ function buildDateScroller() {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
     const iso = toLocalDateStr_(d);
-    const j = toJalali_(d.getFullYear(), d.getMonth() + 1, d.getDate());
     const chip = el('div', 'date-chip');
-    chip.innerHTML = `<div class="dow">${PERSIAN_WEEKDAYS[d.getDay()]}</div><div class="dom">${toPersianDigits_(j.jd)}</div>`;
+    chip.innerHTML = `<div class="dow">${PERSIAN_WEEKDAYS[d.getDay()]}</div><div class="dom">${dayNumberFor_(d)}</div>`;
     chip.addEventListener('click', () => selectDate(iso, chip));
     wrap.appendChild(chip);
   }
@@ -140,10 +197,7 @@ async function selectDate(iso, chipEl) {
   state.selectedTime = null;
   $('#time-section').classList.remove('hidden');
 
-  const [gy, gm, gd] = iso.split('-').map(Number);
-  const j = toJalali_(gy, gm, gd);
-  const fullDate = `${toPersianDigits_(j.jd)}-${toPersianDigits_(String(j.jm).padStart(2, '0'))}-${toPersianDigits_(j.jy)}`;
-  $('#selected-date-summary').textContent = fullDate;
+  $('#selected-date-summary').textContent = fullDateFor_(iso);
 
   const grid = $('#slot-grid');
   grid.innerHTML = '<div class="empty-note">در حال بررسی ساعت‌های خالی...</div>';
@@ -251,6 +305,8 @@ async function loadBranding() {
   try {
     const data = await api('getBrandSettings');
     if (!data.ok) return;
+
+    if (data.calendarType) calendarType = data.calendarType;
 
     if (data.brandName) {
       $('#brand-name').textContent = data.brandName;

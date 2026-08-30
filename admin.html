@@ -66,6 +66,30 @@
         <div class="field"><label>نام خدمت</label><input id="new-service-name"></div>
         <div class="field"><label>قیمت (تومان)</label><input id="new-service-price" type="number"></div>
         <div class="field"><label>مدت زمان (دقیقه)</label><input id="new-service-duration" type="number"></div>
+        <div class="field">
+          <label>دسته‌بندی</label>
+          <select id="new-service-category" style="width:100%; border:2px solid var(--line); border-radius:12px; padding:12px; font-family:'Vazirmatn'; background:var(--paper);">
+            <option value="lash">👁️ مژه</option>
+            <option value="nail">💅 ناخن</option>
+            <option value="hair">💇‍♀️ مو</option>
+            <option value="makeup">💄 میکاپ</option>
+            <option value="eyebrow">🌸 ابرو</option>
+            <option value="skin">🧖‍♀️ پوست</option>
+          </select>
+        </div>
+        <div class="field"><label>اسم شخص انجام‌دهنده (اختیاری)</label><input id="new-service-staffname" placeholder="مثلاً سارا"></div>
+        <div class="field">
+          <label>عکس شخص انجام‌دهنده (اختیاری)</label>
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+            <img id="new-service-staffimg-preview" class="hidden" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--line);">
+            <label for="new-service-staffimg-file" class="btn btn-ghost" style="cursor:pointer; font-size:13px; padding:10px 16px;">انتخاب عکس از گوشی</label>
+            <input type="file" id="new-service-staffimg-file" accept="image/*" class="hidden">
+          </div>
+          <button type="button" class="btn btn-ghost" id="new-service-staffimg-gallery-btn" style="font-size:12.5px; padding:8px 14px;">انتخاب از عکس‌های قبلی</button>
+          <div id="new-service-staffimg-gallery" class="hidden" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;"></div>
+          <div id="new-service-staffimg-status" style="font-size:12px; color:var(--muted); margin-top:8px;"></div>
+          <input type="hidden" id="new-service-staffimg-url">
+        </div>
         <label style="display:flex; align-items:center; gap:6px; font-size:13.5px; margin-bottom:14px;">
           <input type="checkbox" id="new-service-payinperson"> پرداخت حضوری (نیازی به درگاه پرداخت نیست)
         </label>
@@ -111,6 +135,13 @@
 
       <div class="tab-panel" id="tab-brand">
         <div class="section-title">اسم و ظاهر برند</div>
+        <div class="field">
+          <label>نوع تقویم (توی صفحه‌ی رزرو و پنل ساعات کاری)</label>
+          <select id="calendar-type-input" style="width:100%; border:2px solid var(--line); border-radius:12px; padding:12px; font-family:'Vazirmatn'; background:var(--paper);">
+            <option value="jalali">شمسی</option>
+            <option value="gregorian">میلادی</option>
+          </select>
+        </div>
         <div class="field"><label>اسم کسب‌وکار (بالای صفحه‌ی رزرو نشون داده میشه)</label><input id="brand-name-input" placeholder="مثلاً استودیو مژه سارا"></div>
         <div class="field"><label>تیتر اصلی صفحه</label><input id="hero-title-input" placeholder="نوبتت رو با یه دست بگیر ✨"></div>
         <div class="field"><label>توضیح زیر تیتر</label><input id="hero-subtitle-input" placeholder="خدمت رو انتخاب کن، ساعت خالی رو ببین، پرداخت کن — تمام."></div>
