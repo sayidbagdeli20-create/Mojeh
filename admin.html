@@ -8,8 +8,6 @@
   <link rel="manifest" href="admin-manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://unpkg.com/[email protected]/dist/leaflet.css">
-  <script src="https://unpkg.com/[email protected]/dist/leaflet.js"></script>
   <style>
     .tab-bar { display:flex; gap:8px; margin-top:18px; }
     .tab-btn { flex:1; padding:10px; border-radius:12px; border:2px solid var(--line); background:var(--paper); font-family:'Vazirmatn'; font-weight:600; font-size:13px; cursor:pointer; }
@@ -82,8 +80,9 @@
         <div class="field"><label>اسم شخص انجام‌دهنده (اختیاری)</label><input id="new-service-staffname" placeholder="مثلاً سارا"></div>
         <div class="field">
           <label>لینک لوکیشن محل کار (اختیاری)</label>
-          <input id="new-service-location" placeholder="یا از دکمه‌ی پایین روی نقشه انتخاب کن" dir="ltr" style="text-align:left;">
-          <button type="button" class="btn btn-ghost location-picker-btn" data-target="new-service-location" style="font-size:12.5px; padding:8px 14px; margin-top:8px;">📍 انتخاب لوکیشن روی نقشه</button>
+          <input id="new-service-location" placeholder="یا از دکمه‌ی پایین موقعیت فعلیت رو بگیر" dir="ltr" style="text-align:left;">
+          <button type="button" class="btn btn-ghost location-gps-btn" data-target="new-service-location" style="font-size:12.5px; padding:8px 14px; margin-top:8px;">📍 استفاده از موقعیت فعلی من</button>
+          <p style="font-size:11px; color:var(--muted); margin-top:6px;">وقتی توی همون محل هستی این دکمه رو بزن. یا می‌تونی لینک لوکیشن رو از اپ گوگل‌مپ کپی و بالا پیست کنی.</p>
         </div>
         <div class="field">
           <label>عکس شخص انجام‌دهنده (اختیاری)</label>
@@ -228,18 +227,6 @@
   </div>
 
   <div class="toast hidden" id="toast"></div>
-
-  <div id="location-picker-overlay" class="hidden" style="position:fixed; inset:0; background:rgba(42,27,46,0.75); z-index:100; display:flex; align-items:flex-end;">
-    <div style="background:var(--cream); width:100%; max-height:88vh; border-radius:20px 20px 0 0; padding:16px; display:flex; flex-direction:column; gap:10px;">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div class="section-title" style="margin:0;">لوکیشن رو روی نقشه انتخاب کن</div>
-        <button type="button" id="location-picker-close" class="small-btn">بستن</button>
-      </div>
-      <p style="font-size:12px; color:var(--muted); margin:0;">نقشه رو جابه‌جا کن و روی نقطه‌ی مورد نظر بزن. سنجاق قرمز همون نقطه‌ست.</p>
-      <div id="location-picker-map" style="width:100%; height:340px; border-radius:14px; overflow:hidden; border:1.5px solid var(--line);"></div>
-      <button type="button" class="btn btn-block" id="location-picker-confirm" disabled>یه نقطه روی نقشه انتخاب کن</button>
-    </div>
-  </div>
 
   <script src="admin.js"></script>
 </body>

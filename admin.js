@@ -130,8 +130,8 @@ async function loadServices() {
         <div class="field"><label>اسم شخص انجام‌دهنده (اختیاری)</label><input class="edit-staffname" value="${s.staffName || ''}" placeholder="مثلاً سارا"></div>
         <div class="field">
           <label>لینک لوکیشن محل کار (اختیاری)</label>
-          <input class="edit-location" value="${s.locationUrl || ''}" placeholder="یا از دکمه‌ی پایین روی نقشه انتخاب کن" dir="ltr" style="text-align:left;">
-          <button type="button" class="btn btn-ghost edit-location-picker-btn" style="font-size:12.5px; padding:8px 14px; margin-top:8px;">📍 انتخاب لوکیشن روی نقشه</button>
+          <input class="edit-location" value="${s.locationUrl || ''}" placeholder="یا از دکمه‌ی پایین موقعیت فعلیت رو بگیر" dir="ltr" style="text-align:left;">
+          <button type="button" class="btn btn-ghost edit-location-gps-btn" style="font-size:12.5px; padding:8px 14px; margin-top:8px;">📍 استفاده از موقعیت فعلی من</button>
         </div>
         <div class="field">
           <label>عکس شخص انجام‌دهنده (اختیاری)</label>
@@ -190,8 +190,8 @@ async function loadServices() {
       loadServices();
     });
 
-    item.querySelector('.edit-location-picker-btn').addEventListener('click', () => {
-      openLocationPicker_(item.querySelector('.edit-location'));
+    item.querySelector('.edit-location-gps-btn').addEventListener('click', () => {
+      useCurrentLocation_(item.querySelector('.edit-location'));
     });
 
     const staffImgPreview = item.querySelector('.edit-staffimg-preview');
@@ -731,78 +731,38 @@ $('#app-icon-file').addEventListener('change', (e) => {
   reader.readAsDataURL(file);
 });
 
-// ----------------------------- انتخاب لوکیشن روی نقشه -----------------------------
+// ----------------------------- لوکیشن (بر اساس GPS خود گوشی) -----------------------------
 // اگه لینک با http شروع نشه، مرورگر بجای گوگل‌مپ می‌ره سراغ خود سایت (باعث خطای ۴۰۴ میشه)
 function normalizeUrl_(u) {
   if (!u) return u;
   return /^https?:\/\//i.test(u) ? u : 'https://' + u;
 }
 
-let leafletMap_ = null;
-let leafletMarker_ = null;
-let locationPickerTargetInput_ = null;
-
-function setLocationMarker_(lat, lng) {
-  if (leafletMarker_) {
-    leafletMarker_.setLatLng([lat, lng]);
-  } else {
-    leafletMarker_ = L.marker([lat, lng]).addTo(leafletMap_);
+// موقعیت فعلی گوشی رو می‌گیره و به‌صورت لینک گوگل‌مپ توی همون فیلد می‌ذاره —
+// نیازی به لود شدن نقشه از سرور خارجی نداره، برای همین همیشه کار می‌کنه
+function useCurrentLocation_(targetInput) {
+  if (!navigator.geolocation) {
+    toast('مرورگرت از موقعیت مکانی پشتیبانی نمی‌کنه');
+    return;
   }
-  leafletMarker_.latLngValue = [lat, lng];
-  $('#location-picker-confirm').disabled = false;
-  $('#location-picker-confirm').textContent = 'تایید این لوکیشن';
+  toast('در حال گرفتن موقعیت... چند لحظه صبر کن');
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const lat = pos.coords.latitude.toFixed(6);
+      const lng = pos.coords.longitude.toFixed(6);
+      targetInput.value = `https://www.google.com/maps?q=${lat},${lng}`;
+      toast('لوکیشن فعلی ثبت شد ✅ — یادت نره پایین ذخیره کنی');
+    },
+    () => {
+      toast('نتونستیم موقعیتت رو بگیریم — مطمئن شو GPS گوشیت روشنه و اجازه دسترسی دادی');
+    },
+    { enableHighAccuracy: true, timeout: 15000 }
+  );
 }
 
-function openLocationPicker_(targetInput) {
-  locationPickerTargetInput_ = targetInput;
-  $('#location-picker-overlay').classList.remove('hidden');
-
-  if (!leafletMap_) {
-    leafletMap_ = L.map('location-picker-map').setView([35.6892, 51.3890], 12); // پیش‌فرض: تهران
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
-      maxZoom: 19,
-    }).addTo(leafletMap_);
-    leafletMap_.on('click', (e) => setLocationMarker_(e.latlng.lat, e.latlng.lng));
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        leafletMap_.setView([pos.coords.latitude, pos.coords.longitude], 15);
-      }, () => {}, { timeout: 5000 });
-    }
-  } else {
-    setTimeout(() => leafletMap_.invalidateSize(), 100);
-  }
-
-  const existing = targetInput.value.trim();
-  const match = existing.match(/q=([\-0-9.]+),([\-0-9.]+)/);
-  if (match) {
-    const lat = parseFloat(match[1]);
-    const lng = parseFloat(match[2]);
-    setLocationMarker_(lat, lng);
-    leafletMap_.setView([lat, lng], 15);
-  } else {
-    $('#location-picker-confirm').disabled = true;
-    $('#location-picker-confirm').textContent = 'یه نقطه روی نقشه انتخاب کن';
-    if (leafletMarker_) { leafletMap_.removeLayer(leafletMarker_); leafletMarker_ = null; }
-  }
-}
-
-$('#location-picker-close').addEventListener('click', () => {
-  $('#location-picker-overlay').classList.add('hidden');
-});
-
-$('#location-picker-confirm').addEventListener('click', () => {
-  if (!leafletMarker_) return;
-  const [lat, lng] = leafletMarker_.latLngValue;
-  const url = `https://www.google.com/maps?q=${lat.toFixed(6)},${lng.toFixed(6)}`;
-  if (locationPickerTargetInput_) locationPickerTargetInput_.value = url;
-  $('#location-picker-overlay').classList.add('hidden');
-});
-
-document.querySelectorAll('.location-picker-btn').forEach((btn) => {
+document.querySelectorAll('.location-gps-btn').forEach((btn) => {
   btn.addEventListener('click', () => {
-    openLocationPicker_($('#' + btn.dataset.target));
+    useCurrentLocation_($('#' + btn.dataset.target));
   });
 });
 
