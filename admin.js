@@ -129,6 +129,10 @@ async function loadServices() {
         </div>
         <div class="field"><label>اسم شخص انجام‌دهنده (اختیاری)</label><input class="edit-staffname" value="${s.staffName || ''}" placeholder="مثلاً سارا"></div>
         <div class="field">
+          <label>لینک لوکیشن محل کار (اختیاری)</label>
+          <input class="edit-location" value="${s.locationUrl || ''}" placeholder="لینک نقشه رو از گوگل‌مپ کپی و اینجا پیست کن" dir="ltr" style="text-align:left;">
+        </div>
+        <div class="field">
           <label>عکس شخص انجام‌دهنده (اختیاری)</label>
           <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
             <img class="edit-staffimg-preview ${s.staffImageUrl ? '' : 'hidden'}" src="${s.staffImageUrl || ''}" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--line);">
@@ -181,7 +185,7 @@ async function loadServices() {
     });
 
     toggleBtn.addEventListener('click', async () => {
-      await api('adminEditService', { id: s.id, name: s.name, price: s.price, duration: s.duration, active: active ? 'false' : 'true', payInPerson: payInPerson ? 'true' : 'false', imageUrl: currentImageUrl, imagePosition: s.imagePosition || 'center', category: s.category || '', staffName: s.staffName || '', staffImageUrl: currentStaffImageUrl });
+      await api('adminEditService', { id: s.id, name: s.name, price: s.price, duration: s.duration, active: active ? 'false' : 'true', payInPerson: payInPerson ? 'true' : 'false', imageUrl: currentImageUrl, imagePosition: s.imagePosition || 'center', category: s.category || '', staffName: s.staffName || '', staffImageUrl: currentStaffImageUrl, locationUrl: s.locationUrl || '' });
       loadServices();
     });
 
@@ -275,13 +279,14 @@ async function loadServices() {
       const duration = item.querySelector('.edit-duration').value;
       const category = item.querySelector('.edit-category').value;
       const staffName = item.querySelector('.edit-staffname').value.trim();
+      const locationUrl = item.querySelector('.edit-location').value.trim();
       const payInPersonChecked = item.querySelector('.edit-payinperson').checked;
       const imagePosition = item.querySelector('.edit-image-position').value;
       if (!name || !price || !duration) { toast('همه فیلدها را پر کن'); return; }
       const btn = item.querySelector('.save-edit-btn');
       btn.disabled = true;
       btn.textContent = 'در حال ذخیره...';
-      await api('adminEditService', { id: s.id, name, price, duration, active: active ? 'true' : 'false', payInPerson: payInPersonChecked ? 'true' : 'false', imageUrl: currentImageUrl, imagePosition, category, staffName, staffImageUrl: currentStaffImageUrl });
+      await api('adminEditService', { id: s.id, name, price, duration, active: active ? 'true' : 'false', payInPerson: payInPersonChecked ? 'true' : 'false', imageUrl: currentImageUrl, imagePosition, category, staffName, staffImageUrl: currentStaffImageUrl, locationUrl });
       toast('قیمت و مشخصات خدمت به‌روزرسانی شد ✅');
       loadServices();
     });
@@ -326,11 +331,12 @@ $('#add-service-btn').addEventListener('click', async () => {
   const category = $('#new-service-category').value;
   const staffName = $('#new-service-staffname').value.trim();
   const staffImageUrl = $('#new-service-staffimg-url').value.trim();
+  const locationUrl = $('#new-service-location').value.trim();
   const payInPerson = $('#new-service-payinperson').checked;
   const imageUrl = $('#new-service-image-url').value.trim();
   const imagePosition = $('#new-service-image-position').value;
   if (!name || !price || !duration) { toast('همه فیلدها را پر کن'); return; }
-  await api('adminAddService', { name, price, duration, category, staffName, staffImageUrl, payInPerson: payInPerson ? 'true' : 'false', imageUrl, imagePosition });
+  await api('adminAddService', { name, price, duration, category, staffName, staffImageUrl, locationUrl, payInPerson: payInPerson ? 'true' : 'false', imageUrl, imagePosition });
   $('#new-service-name').value = '';
   $('#new-service-price').value = '';
   $('#new-service-duration').value = '';
@@ -339,6 +345,7 @@ $('#add-service-btn').addEventListener('click', async () => {
   $('#new-service-staffimg-url').value = '';
   $('#new-service-staffimg-preview').classList.add('hidden');
   $('#new-service-staffimg-status').textContent = '';
+  $('#new-service-location').value = '';
   $('#new-service-payinperson').checked = false;
   $('#new-service-image-url').value = '';
   $('#new-service-image-preview').classList.add('hidden');
@@ -681,6 +688,42 @@ setupGalleryButton_('#brand-bg-gallery-btn', '#brand-bg-gallery', (url) => {
   preview.src = url;
   preview.classList.remove('hidden');
   $('#brand-bg-status').textContent = 'انتخاب شد — پایین «ذخیره برندینگ» رو بزن';
+});
+
+// ----------------------------- آیکون وب‌اپ -----------------------------
+// عکس رو مربعی (از وسط) می‌بره و توی سایز مشخص روی کانواس می‌کشه، بعد به‌صورت PNG قابل‌دانلود درمیاره
+function squareCanvasToPngUrl_(img, size) {
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const srcSize = Math.min(img.width, img.height);
+  const sx = (img.width - srcSize) / 2;
+  const sy = (img.height - srcSize) / 2;
+  ctx.drawImage(img, sx, sy, srcSize, srcSize, 0, 0, size, size);
+  return canvas.toDataURL('image/png');
+}
+
+$('#app-icon-file').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const img = new Image();
+    img.onload = () => {
+      const preview = $('#app-icon-preview');
+      preview.src = ev.target.result;
+      preview.classList.remove('hidden');
+
+      const url192 = squareCanvasToPngUrl_(img, 192);
+      const url512 = squareCanvasToPngUrl_(img, 512);
+      $('#app-icon-download-192').href = url192;
+      $('#app-icon-download-512').href = url512;
+      $('#app-icon-downloads').classList.remove('hidden');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
 });
 
 // ----------------------------- init -----------------------------

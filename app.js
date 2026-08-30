@@ -96,13 +96,26 @@ function renderServicesForCategory(categoryKey) {
     }
     const staffAvatar = s.staffImageUrl ? `<img class="staff-avatar" src="${s.staffImageUrl}">` : '';
     const staffLine = s.staffName ? ` · ${s.staffName}` : '';
+    const locationPin = s.locationUrl ? `
+      <button type="button" class="location-pin-btn" style="background:none; border:none; padding:6px; cursor:pointer; margin-top:4px;">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--blush-deep)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      </button>` : '';
     card.innerHTML = `
       <div>
         <div class="name">${s.name}</div>
         <div class="meta">${staffAvatar}${s.duration} دقیقه${isPayInPerson ? ' · پرداخت حضوری' : ''}${staffLine}</div>
       </div>
-      <div class="price">${toman(s.price)}</div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+        <div class="price">${toman(s.price)}</div>
+        ${locationPin}
+      </div>
     `;
+    if (s.locationUrl) {
+      card.querySelector('.location-pin-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        window.open(s.locationUrl, '_blank', 'noopener');
+      });
+    }
     card.addEventListener('click', () => selectService(s, card));
     wrap.appendChild(card);
   });

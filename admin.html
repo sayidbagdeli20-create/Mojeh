@@ -79,6 +79,11 @@
         </div>
         <div class="field"><label>اسم شخص انجام‌دهنده (اختیاری)</label><input id="new-service-staffname" placeholder="مثلاً سارا"></div>
         <div class="field">
+          <label>لینک لوکیشن محل کار (اختیاری)</label>
+          <input id="new-service-location" placeholder="لینک نقشه رو از گوگل‌مپ کپی و اینجا پیست کن" dir="ltr" style="text-align:left;">
+          <p style="font-size:11.5px; color:var(--muted); margin-top:6px;">توی اپ گوگل‌مپ، لوکیشن مورد نظر رو پیدا کن → Share → Copy link → همون لینک رو اینجا پیست کن.</p>
+        </div>
+        <div class="field">
           <label>عکس شخص انجام‌دهنده (اختیاری)</label>
           <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
             <img id="new-service-staffimg-preview" class="hidden" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--line);">
@@ -197,6 +202,22 @@
           <div id="brand-bg-gallery" class="hidden" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;"></div>
           <div id="brand-bg-status" style="font-size:12px; color:var(--muted); margin-top:8px;"></div>
           <input type="hidden" id="brand-bg-input">
+        </div>
+
+        <div class="section-title" style="margin-top:26px;">آیکون وب‌اپ (روی صفحه اصلی گوشی)</div>
+        <p style="font-size:12px; color:var(--muted); margin-top:-8px; margin-bottom:12px;">
+          یه عکس مربعی (ترجیحاً لوگو) انتخاب کن، دو فایل آماده برات میسازیم. باید دانلودشون کنی و توی گیت‌هاب جای فایل‌های <code>icon-192.png</code> و <code>icon-512.png</code> جایگزین کنی. توجه: گوشی‌هایی که از قبل اپ رو نصب کردن، آیکونشون خودکار عوض نمیشه — فقط نصب‌های تازه آیکون جدید رو می‌گیرن.
+        </p>
+        <div class="field">
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+            <img id="app-icon-preview" class="hidden" style="width:56px; height:56px; border-radius:12px; object-fit:cover; border:2px solid var(--line);">
+            <label for="app-icon-file" class="btn btn-ghost" style="cursor:pointer; font-size:13px; padding:10px 16px;">انتخاب عکس از گوشی</label>
+            <input type="file" id="app-icon-file" accept="image/*" class="hidden">
+          </div>
+          <div id="app-icon-downloads" class="hidden" style="display:flex; gap:8px; flex-wrap:wrap;">
+            <a id="app-icon-download-192" class="btn btn-ghost" style="font-size:12.5px; padding:8px 14px; text-decoration:none;" download="icon-192.png">دانلود icon-192.png</a>
+            <a id="app-icon-download-512" class="btn btn-ghost" style="font-size:12.5px; padding:8px 14px; text-decoration:none;" download="icon-512.png">دانلود icon-512.png</a>
+          </div>
         </div>
 
         <button class="btn btn-block" id="save-brand-btn">ذخیره برندینگ</button>
