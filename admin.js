@@ -33,6 +33,53 @@ const CATEGORIES = [
 ];
 
 // ----------------------------- ورود -----------------------------
+// ----------------------------- ورود با پیامک (اصلی) -----------------------------
+let otpPhone = '';
+
+$('#otp-send-btn').addEventListener('click', async () => {
+  const phone = $('#otp-phone').value.trim();
+  if (!/^09\d{9}$/.test(phone)) { toast('شماره موبایل رو درست وارد کن'); return; }
+  const btn = $('#otp-send-btn');
+  btn.disabled = true;
+  btn.textContent = 'در حال ارسال...';
+  const res = await api('adminRequestOtp', { phone });
+  btn.disabled = false;
+  btn.textContent = 'ارسال کد تایید';
+  if (!res.ok) { toast(res.error || 'ارسال کد ناموفق بود'); return; }
+  otpPhone = phone;
+  $('#otp-step-phone').classList.add('hidden');
+  $('#otp-step-code').classList.remove('hidden');
+  toast('کد تایید پیامک شد ✅');
+});
+
+$('#otp-verify-btn').addEventListener('click', async () => {
+  const code = $('#otp-code').value.trim();
+  if (!code) { toast('کد رو وارد کن'); return; }
+  const btn = $('#otp-verify-btn');
+  btn.disabled = true;
+  btn.textContent = 'در حال بررسی...';
+  const res = await api('adminVerifyOtp', { phone: otpPhone, code });
+  btn.disabled = false;
+  btn.textContent = 'ورود';
+  if (!res.ok) { toast(res.error || 'کد اشتباهه'); return; }
+  token = res.token;
+  localStorage.setItem('adminToken', token);
+  showPanel();
+});
+
+$('#otp-resend-btn').addEventListener('click', async () => {
+  const res = await api('adminRequestOtp', { phone: otpPhone });
+  toast(res.ok ? 'کد دوباره فرستاده شد' : (res.error || 'ارسال ناموفق بود'));
+});
+
+// ----------------------------- ورود با رمز عبور (روش قدیمی، پشتیبان) -----------------------------
+$('#show-password-login').addEventListener('click', (e) => {
+  e.preventDefault();
+  $('#otp-step-phone').classList.add('hidden');
+  $('#otp-step-code').classList.add('hidden');
+  $('#password-login-box').classList.remove('hidden');
+});
+
 $('#login-btn').addEventListener('click', async () => {
   const password = $('#admin-password').value;
   const res = await api('adminLogin', { password });
@@ -539,6 +586,7 @@ async function loadBranding() {
   $('#brand-color-input').value = s.brandColor || '#D98A96';
   $('#brand-instagram-input').value = s.instagramUrl || '';
   $('#brand-phone-input').value = s.phoneNumber || '';
+  $('#brand-telegram-bot-input').value = s.telegramBotUsername || '';
 
   $('#brand-logo-input').value = s.logoUrl || '';
   if (s.logoUrl) {
@@ -573,6 +621,7 @@ $('#save-brand-btn').addEventListener('click', async () => {
     brandColor: $('#brand-color-input').value,
     instagramUrl: $('#brand-instagram-input').value.trim(),
     phoneNumber: $('#brand-phone-input').value.trim(),
+    telegramBotUsername: $('#brand-telegram-bot-input').value.trim().replace(/^@/, ''),
     logoUrl: $('#brand-logo-input').value.trim(),
     heroImageUrl: $('#brand-hero-input').value.trim(),
     calendarType: $('#calendar-type-input').value,
