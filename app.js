@@ -321,6 +321,7 @@ async function loadBranding() {
     if (!data.ok) return;
 
     if (data.calendarType) calendarType = data.calendarType;
+    if (data.telegramBotUsername) telegramBotUsername = data.telegramBotUsername;
 
     if (data.brandName) {
       $('#brand-name').textContent = data.brandName;
@@ -361,11 +362,78 @@ async function loadBranding() {
   } catch (e) { /* برندینگ اختیاریه، اگه نشد مشکلی نیست */ }
 }
 
+// ----------------------------- ورود مشتری با تلگرام -----------------------------
+let telegramBotUsername = '';
+let customerToken = localStorage.getItem('customerToken') || '';
+let customerPhone = localStorage.getItem('customerPhone') || '';
+
+$('#cust-send-btn').addEventListener('click', async () => {
+  const phone = $('#cust-phone').value.trim();
+  if (!/^09\d{9}$/.test(phone)) { toast('شماره موبایل رو درست وارد کن'); return; }
+  const btn = $('#cust-send-btn');
+  btn.disabled = true;
+  btn.textContent = 'در حال ارسال...';
+  const res = await api('customerRequestOtp', { phone });
+  btn.disabled = false;
+  btn.textContent = 'ارسال کد تایید';
+
+  if (!res.ok) {
+    if (res.needsTelegramSetup) {
+      const note = $('#telegram-setup-note');
+      note.classList.remove('hidden');
+      if (telegramBotUsername) {
+        $('#telegram-bot-link').href = `https://t.me/${telegramBotUsername}`;
+      }
+    }
+    toast(res.error || 'ارسال کد ناموفق بود');
+    return;
+  }
+
+  customerPhone = phone;
+  $('#login-step-phone').classList.add('hidden');
+  $('#login-step-code').classList.remove('hidden');
+  toast('کد تایید توی تلگرامت فرستاده شد ✅');
+});
+
+$('#cust-verify-btn').addEventListener('click', async () => {
+  const code = $('#cust-code').value.trim();
+  if (!code) { toast('کد رو وارد کن'); return; }
+  const btn = $('#cust-verify-btn');
+  btn.disabled = true;
+  btn.textContent = 'در حال بررسی...';
+  const res = await api('customerVerifyOtp', { phone: customerPhone, code });
+  btn.disabled = false;
+  btn.textContent = 'ورود';
+  if (!res.ok) { toast(res.error || 'کد اشتباهه'); return; }
+
+  customerToken = res.token;
+  customerPhone = res.phone;
+  localStorage.setItem('customerToken', customerToken);
+  localStorage.setItem('customerPhone', customerPhone);
+  enterApp_();
+});
+
+$('#cust-resend-btn').addEventListener('click', async () => {
+  const res = await api('customerRequestOtp', { phone: customerPhone });
+  toast(res.ok ? 'کد دوباره فرستاده شد' : (res.error || 'ارسال ناموفق بود'));
+});
+
+function enterApp_() {
+  $('#login-gate').classList.add('hidden');
+  $('#app-content').classList.remove('hidden');
+  const phoneField = $('#customer-phone');
+  if (phoneField) phoneField.value = customerPhone;
+  loadServices();
+}
+
 // ----------------------------- init -----------------------------
 window.addEventListener('DOMContentLoaded', () => {
   loadBranding();
-  loadServices();
   $('#submit-btn').addEventListener('click', submitBooking);
+
+  if (customerToken && customerPhone) {
+    enterApp_();
+  }
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
