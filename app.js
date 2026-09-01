@@ -423,8 +423,15 @@ function enterApp_() {
   $('#app-content').classList.remove('hidden');
   const phoneField = $('#customer-phone');
   if (phoneField) phoneField.value = customerPhone;
+  $('#cust-username-badge').textContent = customerPhone;
   loadServices();
 }
+
+$('#cust-logout-btn').addEventListener('click', () => {
+  localStorage.removeItem('customerToken');
+  localStorage.removeItem('customerPhone');
+  window.location.reload();
+});
 
 // ----------------------------- init -----------------------------
 window.addEventListener('DOMContentLoaded', () => {
