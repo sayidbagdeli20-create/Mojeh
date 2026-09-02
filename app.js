@@ -183,10 +183,10 @@ function dayNumberFor_(d) {
 function fullDateFor_(iso) {
   const [gy, gm, gd] = iso.split('-').map(Number);
   if (calendarType === 'gregorian') {
-    return `${toPersianDigits_(gy)}-${toPersianDigits_(String(gm).padStart(2, '0'))}-${toPersianDigits_(String(gd).padStart(2, '0'))}`;
+    return `${gy}/${String(gm).padStart(2, '0')}/${String(gd).padStart(2, '0')}`;
   }
   const j = toJalali_(gy, gm, gd);
-  return `${toPersianDigits_(j.jy)}-${toPersianDigits_(String(j.jm).padStart(2, '0'))}-${toPersianDigits_(String(j.jd).padStart(2, '0'))}`;
+  return `${j.jy}/${String(j.jm).padStart(2, '0')}/${String(j.jd).padStart(2, '0')}`;
 }
 
 // ----------------------------- تاریخ -----------------------------

@@ -34,10 +34,20 @@ function pad2_(n) {
   return String(n).padStart(2, '0');
 }
 
-// فرمت کامل عددی مثل 1405-08-20
+// فرمت کامل عددی مثل 1405/08/20
 function jalaliNumeric(dateStr) {
   const { jy, jm, jd } = toJalaliFromISO(dateStr);
-  return `${jy}-${pad2_(jm)}-${pad2_(jd)}`;
+  return `${jy}/${pad2_(jm)}/${pad2_(jd)}`;
+}
+
+// فرمت هماهنگ با تنظیم «نوع تقویم» — یا شمسی یا میلادی، هردو با فرمت YYYY/MM/DD
+function formatDateAny(dateStr, calendarType) {
+  const [gy, gm, gd] = dateStr.split('-').map(Number);
+  if (calendarType === 'gregorian') {
+    return `${gy}/${pad2_(gm)}/${pad2_(gd)}`;
+  }
+  const { jy, jm, jd } = gregorianToJalali(gy, gm, gd);
+  return `${jy}/${pad2_(jm)}/${pad2_(jd)}`;
 }
 
 // فرمت خوانا مثل «یکشنبه ۲۰ آبان ۱۴۰۵»

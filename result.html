@@ -55,29 +55,41 @@
 
     // بروزرسانی و نمایش رسید ذخیره‌شده (اگه از همین گوشی رزرو شده باشه)
     if (bookingId) {
-      try {
-        const raw = localStorage.getItem('receipt_' + bookingId);
-        if (raw) {
-          const r = JSON.parse(raw);
-          if (status === 'success' && !inPerson) { r.status = 'paid'; r.ref = ref || ''; }
-          else if (status === 'cancelled') r.status = 'cancelled';
-          else if (status === 'failed') r.status = 'failed';
-          localStorage.setItem('receipt_' + bookingId, JSON.stringify(r));
+      (async () => {
+        try {
+          const raw = localStorage.getItem('receipt_' + bookingId);
+          if (raw) {
+            const r = JSON.parse(raw);
+            if (status === 'success' && !inPerson) { r.status = 'paid'; r.ref = ref || ''; }
+            else if (status === 'cancelled') r.status = 'cancelled';
+            else if (status === 'failed') r.status = 'failed';
+            localStorage.setItem('receipt_' + bookingId, JSON.stringify(r));
 
-          const STATUS_FA = { paid: 'پرداخت‌شده ✅', confirmed: 'تایید شده (پرداخت حضوری)', pending: 'در انتظار پرداخت', cancelled: 'لغوشده', failed: 'ناموفق' };
-          const rows = document.getElementById('receipt-rows');
-          rows.innerHTML = `
-            <div>خدمت: <strong>${r.serviceName}</strong></div>
-            <div>تاریخ: <strong>${jalaliReadable(r.date)}</strong></div>
-            <div>ساعت: <strong>${r.time}</strong></div>
-            <div>نام: <strong>${r.customerName}</strong></div>
-            <div>مبلغ: <strong>${Number(r.amount).toLocaleString('fa-IR')} تومان</strong></div>
-            <div>وضعیت: <strong>${STATUS_FA[r.status] || r.status}</strong></div>
-            <div style="color:var(--muted); font-size:11.5px; margin-top:4px;">شماره رزرو: ${r.bookingId}${r.ref ? ' — کد پیگیری: ' + r.ref : ''}</div>
-          `;
-          document.getElementById('receipt-box').classList.remove('hidden');
-        }
-      } catch (e) { /* اگه رسید پیدا نشد، فقط پیام بالا کافیه */ }
+            let calendarType = 'jalali';
+            try {
+              const API_BASE = 'https://script.google.com/macros/s/AKfycbyzrAbREITal0EnMVVYNySfNjfjnvSL0wnB-c3_8CaeExkcQ2WKXb-dkK-g8URBhD5J/exec';
+              const url = new URL(API_BASE);
+              url.searchParams.set('action', 'getBrandSettings');
+              const res = await fetch(url.toString());
+              const data = await res.json();
+              if (data.ok && data.calendarType) calendarType = data.calendarType;
+            } catch (e) { /* اگه نشد، پیش‌فرض شمسی کافیه */ }
+
+            const STATUS_FA = { paid: 'پرداخت‌شده ✅', confirmed: 'تایید شده (پرداخت حضوری)', pending: 'در انتظار پرداخت', cancelled: 'لغوشده', failed: 'ناموفق' };
+            const rows = document.getElementById('receipt-rows');
+            rows.innerHTML = `
+              <div>خدمت: <strong>${r.serviceName}</strong></div>
+              <div>تاریخ: <strong>${formatDateAny(r.date, calendarType)}</strong></div>
+              <div>ساعت: <strong>${r.time}</strong></div>
+              <div>نام: <strong>${r.customerName}</strong></div>
+              <div>مبلغ: <strong>${Number(r.amount).toLocaleString('fa-IR')} تومان</strong></div>
+              <div>وضعیت: <strong>${STATUS_FA[r.status] || r.status}</strong></div>
+              <div style="color:var(--muted); font-size:11.5px; margin-top:4px;">شماره رزرو: ${r.bookingId}${r.ref ? ' — کد پیگیری: ' + r.ref : ''}</div>
+            `;
+            document.getElementById('receipt-box').classList.remove('hidden');
+          }
+        } catch (e) { /* اگه رسید پیدا نشد، فقط پیام بالا کافیه */ }
+      })();
     }
   </script>
 </body>

@@ -44,7 +44,7 @@
           <span style="font-size:11px; padding:3px 8px; border-radius:20px; background:rgba(199,161,92,0.18); color:#8a6c2e;">${STATUS_FA[b.status] || b.status}</span>
         </div>
         <div style="font-size:13px; color:var(--muted); margin-top:6px;">
-          ${jalaliReadable(b.date)} — ساعت ${b.time}<br>
+          ${b.displayDate || jalaliReadable(b.date)} — ساعت ${b.time}<br>
           ${Number(b.price).toLocaleString('fa-IR')} تومان
         </div>
       `;

@@ -118,7 +118,7 @@ async function loadBookings() {
         <span class="badge ${b.status}">${STATUS_FA[b.status] || b.status}</span>
       </div>
       <div style="font-size:13px; color:var(--muted); margin-top:4px;">
-        ${b.serviceName} — ${b.date} ساعت ${b.time}<br>${b.phone}
+        ${b.serviceName} — ${b.displayDate || b.date} ساعت ${b.time}<br>${b.phone}
       </div>
       <div class="actions"></div>
     `;
