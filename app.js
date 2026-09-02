@@ -40,26 +40,27 @@ async function api(action, params = {}) {
   return res.json();
 }
 
-const CATEGORIES = [
-  { key: 'lash', label: 'مژه', emoji: '👁️' },
-  { key: 'nail', label: 'ناخن', emoji: '💅' },
-  { key: 'hair', label: 'مو', emoji: '💇‍♀️' },
-  { key: 'makeup', label: 'میکاپ', emoji: '💄' },
-  { key: 'eyebrow', label: 'ابرو', emoji: '🌸' },
-  { key: 'skin', label: 'پوست', emoji: '🧖‍♀️' },
-];
+let CATEGORIES = [];
 
 // ----------------------------- خدمات -----------------------------
 async function loadServices() {
-  const data = await api('getServices');
-  if (!data.ok) { toast('خطا در دریافت خدمات'); return; }
-  state.services = data.services;
+  const [servicesData, categoriesData] = await Promise.all([
+    api('getServices'),
+    api('getCategories'),
+  ]);
+  if (!servicesData.ok) { toast('خطا در دریافت خدمات'); return; }
+  state.services = servicesData.services;
+  CATEGORIES = categoriesData.ok ? categoriesData.categories : [];
   renderCategoryGrid();
 }
 
 function renderCategoryGrid() {
   const grid = $('#category-grid');
   grid.innerHTML = '';
+  if (CATEGORIES.length === 0) {
+    grid.innerHTML = '<div class="empty-note" style="grid-column: 1 / -1;">هنوز دسته‌بندی‌ای تعریف نشده</div>';
+    return;
+  }
   CATEGORIES.forEach((cat) => {
     const card = el('div', 'category-card', `<div class="emoji">${cat.emoji}</div><div class="label">${cat.label}</div>`);
     card.addEventListener('click', () => selectCategory(cat));

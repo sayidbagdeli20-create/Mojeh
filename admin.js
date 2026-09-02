@@ -23,14 +23,7 @@ async function api(action, params = {}) {
 
 const DOW_LABELS = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه', 'شنبه'];
 const STATUS_FA = { paid: 'پرداخت‌شده', confirmed: 'تایید شده (حضوری)', pending: 'در انتظار پرداخت', cancelled: 'لغوشده', failed: 'ناموفق' };
-const CATEGORIES = [
-  { key: 'lash', label: 'مژه', emoji: '👁️' },
-  { key: 'nail', label: 'ناخن', emoji: '💅' },
-  { key: 'hair', label: 'مو', emoji: '💇‍♀️' },
-  { key: 'makeup', label: 'میکاپ', emoji: '💄' },
-  { key: 'eyebrow', label: 'ابرو', emoji: '🌸' },
-  { key: 'skin', label: 'پوست', emoji: '🧖‍♀️' },
-];
+let CATEGORIES = [];
 
 // ----------------------------- ورود -----------------------------
 // ----------------------------- ورود با پیامک (اصلی) -----------------------------
@@ -92,6 +85,7 @@ $('#login-btn').addEventListener('click', async () => {
 async function showPanel() {
   $('#login-box').classList.add('hidden');
   $('#panel').classList.remove('hidden');
+  await loadCategories();
   loadBookings();
   loadServices();
   loadSettings();
@@ -140,6 +134,61 @@ async function loadBookings() {
     wrap.appendChild(item);
   });
 }
+
+// ----------------------------- دسته‌بندی‌ها -----------------------------
+async function loadCategories() {
+  const res = await api('getCategories');
+  CATEGORIES = res.ok ? res.categories : [];
+  renderCategoriesList_();
+  renderCategorySelect_($('#new-service-category'));
+}
+
+function renderCategoriesList_() {
+  const wrap = $('#categories-list');
+  wrap.innerHTML = '';
+  if (CATEGORIES.length === 0) {
+    wrap.innerHTML = '<div class="empty-note">هنوز دسته‌بندی‌ای اضافه نکردی</div>';
+    return;
+  }
+  CATEGORIES.forEach((cat) => {
+    const item = el('div', 'list-item');
+    item.innerHTML = `
+      <div class="row">
+        <strong>${cat.emoji} ${cat.label}</strong>
+      </div>
+      <div class="actions"></div>
+    `;
+    const delBtn = el('button', 'small-btn danger', 'حذف');
+    delBtn.addEventListener('click', async () => {
+      if (!confirm(`دسته‌بندی «${cat.label}» حذف بشه؟ خدماتی که این دسته رو داشتن، بدون دسته‌بندی می‌مونن.`)) return;
+      await api('adminDeleteCategory', { key: cat.key });
+      toast('دسته‌بندی حذف شد');
+      loadCategories();
+      loadServices();
+    });
+    item.querySelector('.actions').appendChild(delBtn);
+    wrap.appendChild(item);
+  });
+}
+
+// یه <select> رو با آپشن‌های دسته‌بندی فعلی پر می‌کنه — برای فرم افزودن و هر ردیف ویرایش استفاده میشه
+function renderCategorySelect_(selectEl, selectedKey) {
+  if (!selectEl) return;
+  selectEl.innerHTML = CATEGORIES.map((c) =>
+    `<option value="${c.key}" ${c.key === selectedKey ? 'selected' : ''}>${c.emoji} ${c.label}</option>`
+  ).join('');
+}
+
+$('#add-category-btn').addEventListener('click', async () => {
+  const label = $('#new-category-label').value.trim();
+  const emoji = $('#new-category-emoji').value.trim();
+  if (!label || !emoji) { toast('اسم و آیکون رو پر کن'); return; }
+  await api('adminAddCategory', { label, emoji });
+  $('#new-category-label').value = '';
+  $('#new-category-emoji').value = '';
+  toast('دسته‌بندی اضافه شد ✅');
+  loadCategories();
+});
 
 // ----------------------------- خدمات -----------------------------
 async function loadServices() {

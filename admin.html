@@ -73,9 +73,10 @@
 
     <!-- محتوای پنل -->
     <div id="panel" class="hidden">
-      <div class="tab-bar">
+      <div class="tab-bar" style="flex-wrap:wrap;">
         <button class="tab-btn active" data-tab="bookings">نوبت‌ها</button>
         <button class="tab-btn" data-tab="services">خدمات</button>
+        <button class="tab-btn" data-tab="categories">دسته‌بندی‌ها</button>
         <button class="tab-btn" data-tab="settings">ساعات کاری</button>
         <button class="tab-btn" data-tab="brand">برندینگ</button>
       </div>
@@ -92,14 +93,7 @@
         <div class="field"><label>مدت زمان (دقیقه)</label><input id="new-service-duration" type="number"></div>
         <div class="field">
           <label>دسته‌بندی</label>
-          <select id="new-service-category" style="width:100%; border:2px solid var(--line); border-radius:12px; padding:12px; font-family:'Vazirmatn'; background:var(--paper);">
-            <option value="lash">👁️ مژه</option>
-            <option value="nail">💅 ناخن</option>
-            <option value="hair">💇‍♀️ مو</option>
-            <option value="makeup">💄 میکاپ</option>
-            <option value="eyebrow">🌸 ابرو</option>
-            <option value="skin">🧖‍♀️ پوست</option>
-          </select>
+          <select id="new-service-category" style="width:100%; border:2px solid var(--line); border-radius:12px; padding:12px; font-family:'Vazirmatn'; background:var(--paper);"></select>
         </div>
         <div class="field"><label>اسم شخص انجام‌دهنده (اختیاری)</label><input id="new-service-staffname" placeholder="مثلاً سارا"></div>
         <div class="field">
@@ -151,6 +145,14 @@
           <input type="hidden" id="new-service-image-url">
         </div>
         <button class="btn btn-block" id="add-service-btn">افزودن خدمت</button>
+      </div>
+
+      <div class="tab-panel" id="tab-categories">
+        <div id="categories-list"></div>
+        <div class="section-title" style="margin-top:22px;">افزودن دسته‌بندی جدید</div>
+        <div class="field"><label>اسم دسته‌بندی</label><input id="new-category-label" placeholder="مثلاً دندون"></div>
+        <div class="field"><label>آیکون/اموجی</label><input id="new-category-emoji" placeholder="مثلاً 🦷" style="font-size:20px;"></div>
+        <button class="btn btn-block" id="add-category-btn">افزودن دسته‌بندی</button>
       </div>
 
       <div class="tab-panel" id="tab-settings">
