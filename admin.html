@@ -79,6 +79,7 @@
         <button class="tab-btn" data-tab="categories">دسته‌بندی‌ها</button>
         <button class="tab-btn" data-tab="settings">ساعات کاری</button>
         <button class="tab-btn" data-tab="brand">برندینگ</button>
+        <button class="tab-btn" data-tab="notify">اطلاع‌رسانی</button>
       </div>
 
       <div class="tab-panel active" id="tab-bookings">
@@ -244,7 +245,7 @@
 
         <div class="section-title" style="margin-top:26px;">آیکون وب‌اپ (روی صفحه اصلی گوشی)</div>
         <p style="font-size:12px; color:var(--muted); margin-top:-8px; margin-bottom:12px;">
-          یه عکس مربعی (ترجیحاً لوگو) انتخاب کن، دو فایل آماده برات میسازیم. باید دانلودشون کنی و توی گیت‌هاب جای فایل‌های <code>icon-192.png</code> و <code>icon-512.png</code> جایگزین کنی. توجه: گوشی‌هایی که از قبل اپ رو نصب کردن، آیکونشون خودکار عوض نمیشه — فقط نصب‌های تازه آیکون جدید رو می‌گیرن.
+          یه عکس مربعی (ترجیحاً لوگو) انتخاب کن، چهار فایل آماده برات میسازیم. باید دانلودشون کنی و توی گیت‌هاب جای فایل‌های همنام جایگزین کنی. دو تای اول (<code>icon-192.png</code>, <code>icon-512.png</code>) نسخه‌ی عادی‌ان؛ دو تای «maskable» نسخه‌ای با حاشیه‌ن که باعث میشه گوشی‌های اندروید هنگام نصب، لبه‌ی لوگو رو نبرن و کنارش نشونه‌ی مرورگر نذارن. توجه: گوشی‌هایی که از قبل اپ رو نصب کردن، آیکونشون خودکار عوض نمیشه — فقط نصب‌های تازه آیکون جدید رو می‌گیرن.
         </p>
         <div class="field">
           <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
@@ -255,10 +256,38 @@
           <div id="app-icon-downloads" class="hidden" style="display:flex; gap:8px; flex-wrap:wrap;">
             <a id="app-icon-download-192" class="btn btn-ghost" style="font-size:12.5px; padding:8px 14px; text-decoration:none;" download="icon-192.png">دانلود icon-192.png</a>
             <a id="app-icon-download-512" class="btn btn-ghost" style="font-size:12.5px; padding:8px 14px; text-decoration:none;" download="icon-512.png">دانلود icon-512.png</a>
+            <a id="app-icon-download-192-maskable" class="btn btn-ghost" style="font-size:12.5px; padding:8px 14px; text-decoration:none;" download="icon-192-maskable.png">دانلود icon-192-maskable.png</a>
+            <a id="app-icon-download-512-maskable" class="btn btn-ghost" style="font-size:12.5px; padding:8px 14px; text-decoration:none;" download="icon-512-maskable.png">دانلود icon-512-maskable.png</a>
           </div>
         </div>
 
+        <div class="section-title" style="margin-top:26px;">تنظیمات Firebase (برای نوتیفیکیشن واقعی گوشی)</div>
+        <p style="font-size:12px; color:var(--muted); margin-top:-8px; margin-bottom:12px;">
+          این‌ها مقادیر عمومی (غیرمحرمانه) پروژه‌ی Firebase‌ته — از Project Settings توی کنسول Firebase کپی کن. کلید خصوصی سرویس‌اکانت جای دیگه‌ای (Script Properties) تنظیم میشه، نه اینجا.
+        </p>
+        <div class="field"><label>apiKey</label><input id="fb-apikey" dir="ltr" style="text-align:left;"></div>
+        <div class="field"><label>authDomain</label><input id="fb-authdomain" dir="ltr" style="text-align:left;"></div>
+        <div class="field"><label>projectId</label><input id="fb-projectid" dir="ltr" style="text-align:left;"></div>
+        <div class="field"><label>storageBucket</label><input id="fb-storagebucket" dir="ltr" style="text-align:left;"></div>
+        <div class="field"><label>messagingSenderId</label><input id="fb-sender" dir="ltr" style="text-align:left;"></div>
+        <div class="field"><label>appId</label><input id="fb-appid" dir="ltr" style="text-align:left;"></div>
+        <div class="field"><label>VAPID key (از بخش Cloud Messaging)</label><input id="fb-vapid" dir="ltr" style="text-align:left;"></div>
+
         <button class="btn btn-block" id="save-brand-btn">ذخیره برندینگ</button>
+      </div>
+
+      <div class="tab-panel" id="tab-notify">
+        <div class="section-title">ارسال پیام به همه‌ی مشتری‌ها</div>
+        <p style="font-size:12px; color:var(--muted); margin-top:-8px; margin-bottom:12px;">
+          این پیام برای همه‌ی کسایی که تا الان با تلگرام یا نوتیفیکیشن وارد سایت شدن ارسال میشه.
+        </p>
+        <div class="field">
+          <label>متن پیام</label>
+          <textarea id="broadcast-text" rows="4" style="width:100%; border:2px solid var(--line); border-radius:12px; padding:12px; font-family:'Vazirmatn';" placeholder="مثلاً: این هفته روی کاشت مژه حجمی ۲۰٪ تخفیف داریم 🌸"></textarea>
+        </div>
+        <button class="btn btn-block" id="broadcast-telegram-btn">ارسال به تلگرام همه</button>
+        <button class="btn btn-block" id="broadcast-push-btn" style="margin-top:10px;">ارسال نوتیفیکیشن به همه</button>
+        <div id="broadcast-status" style="font-size:13px; color:var(--muted); margin-top:12px;"></div>
       </div>
     </div>
   </div>

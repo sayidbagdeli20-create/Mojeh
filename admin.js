@@ -657,6 +657,14 @@ async function loadBranding() {
     preview.src = s.backgroundUrl;
     preview.classList.remove('hidden');
   }
+
+  $('#fb-apikey').value = s.firebaseApiKey || '';
+  $('#fb-authdomain').value = s.firebaseAuthDomain || '';
+  $('#fb-projectid').value = s.firebaseProjectId || '';
+  $('#fb-storagebucket').value = s.firebaseStorageBucket || '';
+  $('#fb-sender').value = s.firebaseMessagingSenderId || '';
+  $('#fb-appid').value = s.firebaseAppId || '';
+  $('#fb-vapid').value = s.firebaseVapidKey || '';
 }
 
 $('#save-brand-btn').addEventListener('click', async () => {
@@ -675,6 +683,13 @@ $('#save-brand-btn').addEventListener('click', async () => {
     heroImageUrl: $('#brand-hero-input').value.trim(),
     calendarType: $('#calendar-type-input').value,
     backgroundUrl: $('#brand-bg-input').value.trim(),
+    firebaseApiKey: $('#fb-apikey').value.trim(),
+    firebaseAuthDomain: $('#fb-authdomain').value.trim(),
+    firebaseProjectId: $('#fb-projectid').value.trim(),
+    firebaseStorageBucket: $('#fb-storagebucket').value.trim(),
+    firebaseMessagingSenderId: $('#fb-sender').value.trim(),
+    firebaseAppId: $('#fb-appid').value.trim(),
+    firebaseVapidKey: $('#fb-vapid').value.trim(),
   });
   adminCalendarType = $('#calendar-type-input').value;
   if ($('#admin-date-scroller').children.length > 0) buildAdminDateScroller();
@@ -819,6 +834,26 @@ function squareCanvasToPngUrl_(img, size) {
   return canvas.toDataURL('image/png');
 }
 
+// نسخه‌ی «maskable»: عکس رو کوچیک‌تر و وسط‌چین می‌کشه با یه حاشیه‌ی پررنگ دورش،
+// چون گوشی‌های اندروید ممکنه لبه‌های آیکون رو (به‌شکل دایره یا هر شکل دیگه) ببرن —
+// این حاشیه باعث میشه چیزی از لوگوی اصلی بریده نشه
+function maskableCanvasToPngUrl_(img, size) {
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#2A1B2E';
+  ctx.fillRect(0, 0, size, size);
+  const scale = 0.68; // ناحیه‌ی امن استاندارد maskable
+  const innerSize = size * scale;
+  const offset = (size - innerSize) / 2;
+  const srcSize = Math.min(img.width, img.height);
+  const sx = (img.width - srcSize) / 2;
+  const sy = (img.height - srcSize) / 2;
+  ctx.drawImage(img, sx, sy, srcSize, srcSize, offset, offset, innerSize, innerSize);
+  return canvas.toDataURL('image/png');
+}
+
 $('#app-icon-file').addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -834,6 +869,12 @@ $('#app-icon-file').addEventListener('change', (e) => {
       const url512 = squareCanvasToPngUrl_(img, 512);
       $('#app-icon-download-192').href = url192;
       $('#app-icon-download-512').href = url512;
+
+      const urlMask192 = maskableCanvasToPngUrl_(img, 192);
+      const urlMask512 = maskableCanvasToPngUrl_(img, 512);
+      $('#app-icon-download-192-maskable').href = urlMask192;
+      $('#app-icon-download-512-maskable').href = urlMask512;
+
       $('#app-icon-downloads').classList.remove('hidden');
     };
     img.src = ev.target.result;
@@ -880,6 +921,33 @@ document.querySelectorAll('.location-maps-web-btn').forEach((btn) => {
   btn.addEventListener('click', () => {
     window.open('https://maps.google.com', '_blank', 'noopener');
   });
+});
+
+// ----------------------------- اطلاع‌رسانی گروهی -----------------------------
+$('#broadcast-telegram-btn').addEventListener('click', async () => {
+  const text = $('#broadcast-text').value.trim();
+  if (!text) { toast('یه متن بنویس'); return; }
+  const btn = $('#broadcast-telegram-btn');
+  btn.disabled = true;
+  btn.textContent = 'در حال ارسال...';
+  const res = await api('adminBroadcastTelegram', { text });
+  btn.disabled = false;
+  btn.textContent = 'ارسال به تلگرام همه';
+  $('#broadcast-status').textContent = res.ok ? `به ${res.sent} نفر توی تلگرام فرستاده شد ✅` : (res.error || 'خطا در ارسال');
+});
+
+$('#broadcast-push-btn').addEventListener('click', async () => {
+  const text = $('#broadcast-text').value.trim();
+  if (!text) { toast('یه متن بنویس'); return; }
+  const btn = $('#broadcast-push-btn');
+  btn.disabled = true;
+  btn.textContent = 'در حال ارسال...';
+  const res = await api('adminBroadcastPush', { text, title: 'استودیو زیبایی' });
+  btn.disabled = false;
+  btn.textContent = 'ارسال نوتیفیکیشن به همه';
+  $('#broadcast-status').textContent = res.ok
+    ? `نوتیف برای ${res.sent} نفر فرستاده شد${res.failed ? ` (${res.failed} تا ناموفق)` : ''} ✅`
+    : (res.error || 'خطا در ارسال');
 });
 
 // ----------------------------- init -----------------------------
