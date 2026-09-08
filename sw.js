@@ -9,12 +9,12 @@ importScripts('https://www.gstatic.com/firebasejs/10.7.0/firebase-messaging-comp
 
 try {
   firebase.initializeApp({
-    apiKey: 'PASTE_FIREBASE_API_KEY_HERE',
-    authDomain: 'PASTE_FIREBASE_AUTH_DOMAIN_HERE',
-    projectId: 'PASTE_FIREBASE_PROJECT_ID_HERE',
-    storageBucket: 'PASTE_FIREBASE_STORAGE_BUCKET_HERE',
-    messagingSenderId: 'PASTE_FIREBASE_MESSAGING_SENDER_ID_HERE',
-    appId: 'PASTE_FIREBASE_APP_ID_HERE',
+    apiKey: 'AIzaSyDv6K9Nub6UfUxsY9LGf5ktzR0bSGhlaGw',
+    authDomain: 'mojeh-booking.firebaseapp.com',
+    projectId: 'mojeh-booking',
+    storageBucket: 'mojeh-booking.firebasestorage.app',
+    messagingSenderId: '301215261568',
+    appId: '1:301215261568:web:a09cc6e19bcb5506ab9765',
   });
   const messaging = firebase.messaging();
   messaging.onBackgroundMessage((payload) => {
