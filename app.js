@@ -1,7 +1,7 @@
 // =====================================================================
 // این خط را بعد از دیپلوی Apps Script با آدرس exec خودت جایگزین کن
 // =====================================================================
-const API_BASE = 'https://script.google.com/macros/s/AKfycbyzrAbREITal0EnMVVYNySfNjfjnvSL0wnB-c3_8CaeExkcQ2WKXb-dkK-g8URBhD5J/exec';
+const API_BASE = 'https://script.google.com/macros/s/AKfycbzWLPgSboFo7wzKlgFN8az3nehWEVrwX_ud21BzAl1R8cJCQPAR26UAClhMplTAcECb/exec';
 
 const state = {
   services: [],
