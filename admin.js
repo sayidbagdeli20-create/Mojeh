@@ -954,5 +954,5 @@ $('#broadcast-push-btn').addEventListener('click', async () => {
 if (token) showPanel();
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+  navigator.serviceWorker.register('admin-sw.js', { scope: 'admin.html' }).catch(() => {});
 }
