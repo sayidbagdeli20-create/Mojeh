@@ -441,7 +441,7 @@ async function setupPushNotifications_() {
     const permission = await Notification.requestPermission();
     if (permission !== 'granted') return;
 
-    const swReg = await navigator.serviceWorker.register('sw.js');
+    const swReg = await navigator.serviceWorker.register('sw.js', { scope: './' });
 
     firebase.initializeApp({
       apiKey: firebaseConfig.firebaseApiKey,
@@ -480,6 +480,6 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+    navigator.serviceWorker.register('sw.js', { scope: './' }).catch(() => {});
   }
 });
